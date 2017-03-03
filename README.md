@@ -1,2 +1,2 @@
 # CPR-sensors
-Code for parsing and processing IMU data obtained from a novel sensorized CPR training mannequin
+MATLAB/Python code for parsing accelerometer data; positional algorithms for extracting displacement data from acceleration and compensating for drift.
