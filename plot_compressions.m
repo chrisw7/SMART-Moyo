@@ -1,10 +1,11 @@
-clear all;clc;close all;
+clear all;clc;%close all;
 %Choose file w/dialog
 % filename = uigetfile({'*.csv','Compression Data'},...
 %                       'Select Raw Compression Data',...
 %                       'C:\Users\Christopher\Google Drive\MetaHealth Data');
 % filename = 'Accelerometer_20170224-160058346.csv';
 filename = 'Accelerometer_20170228-182720191.csv';
+% filename = '10h-10s.csv';
 % filename = 'MetaWear1_2017-02-14T12.26.29.046_CA_4F_11_2D_38_3E_Accelerometer_100.000 Hz.csv';
 
 %Extract Raw Data

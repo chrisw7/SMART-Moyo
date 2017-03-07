@@ -1,11 +1,11 @@
-% clear all;clc;%close all;
+clear all;clc;%close all;
 %Choose file w/dialog
 % filename = uigetfile({'*.csv','Compression Data'},...
 %                       'Select Raw Compression Data',...
 %                       'C:\Users\Christopher\Google Drive\MetaHealth Data');
-% filename = 'Accelerometer_20170224-160058346.csv';
-filename = 'Accelerometer_20170228-182720191.csv';
-% filename = 'MetaWear1_2017-02-14T12.26.29.046_CA_4F_11_2D_38_3E_Accelerometer_100.000 Hz.csv';
+filename = 'Accelerometer_20170224-160058346.csv';
+% filename = 'Accelerometer_20170228-182720191.csv';
+% filename = 'child-lean.csv';
 
 %Extract Raw Data
 Acc = importdata(filename);
@@ -64,9 +64,21 @@ for i = 2:length(t)
     s2(i) = s2(i-1)+(v2(i)+v2(i-1))*Ts/2;
 end
 
-plot(t, a,'k', t,10*v,'--g',t,100*s,':b', t(locs), pks, '*r');
-vline(t(locs),':m');
+bpm = length(locs(2:end-1))/(t(locs(end-1))-t(locs(2)))*60;
+
+fprintf('Interval Start: %fs\n', t(locs(2)));
+fprintf('Interval End: %fs\n', t(locs(end-1)));
+fprintf('Interval Duration: %fs\n\n', t(locs(end-1))-t(locs(2)));
+
+
+fprintf('Avg. Compression Rate: %f bpm\n', bpm);
+
+plot(t, a,'-k', t,10*v,'--m.',t,100*s,':b.', t(locs), pks, 'vr');
+vline(t(locs),':k');
 hline(0,':k');
-title('Windowed Compressions')
-xlim([t(1) t(1)+3])
-xlabel('Elapsed Time (s)')
+title('Windowed Compressions','FontSize', 14)
+% xlim([t(1) t(1)+3])
+xlabel('Elapsed Time (s)','FontSize', 12)
+ylabel('Motion Signals'   ,'FontSize', 12)
+set(gca,'fontsize',12)
+legend('Acceleration (m/s/s)', 'Velocity (dm/s)', 'Displacement (cm)')
