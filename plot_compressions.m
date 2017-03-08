@@ -5,6 +5,7 @@ clear all;clc;%close all;
 %                       'C:\Users\Christopher\Google Drive\MetaHealth Data');
 % filename = 'Accelerometer_20170224-160058346.csv';
 filename = 'Accelerometer_20170228-182720191.csv';
+% filename = 'Accelerometer_20170307-155158277.csv';
 % filename = '10h-10s.csv';
 % filename = 'MetaWear1_2017-02-14T12.26.29.046_CA_4F_11_2D_38_3E_Accelerometer_100.000 Hz.csv';
 
@@ -18,7 +19,7 @@ Ts = (t(2)-t(1));
 % plot(t,a,t,filter(bh,ah,a))
 a = (a - mean(a))*9.80665;%better normalization?
 
-aInit = find(a<min(a)/3,1);
+aInit = find(a<min(a)/2,1);
 % startIndex = 540;
 startIndex = find(t == floor(t(aInit)),1);
 aFinal = find(fliplr(a)>max(a)/3,1);
