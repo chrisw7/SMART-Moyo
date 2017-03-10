@@ -26,7 +26,6 @@ aFinal = find(fliplr(a)>max(a)/3,1);
 % endIndex = 1800;
 endIndex = find(t == ceil(t(end - aFinal)),1);
 
-
 %Trim Data
 t = t(startIndex:endIndex);
 a = a(startIndex:endIndex);

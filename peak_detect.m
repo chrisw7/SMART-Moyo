@@ -1,4 +1,4 @@
-clear all;clc;%close all;
+clear all;clc;tic%close all;
 %Choose file w/dialog
 
 % filename = uigetfile({'*.csv','Compression Data'},...
@@ -93,7 +93,7 @@ end
 
 %Compute compression rate/depth
 
----% TODO: Implement lean approximation (quantitative measure of zero-reset) 
+%--- TODO: Implement lean approximation (quantitative measure of zero-reset) 
 bpm = length(locs(2:end-1))/(t(locs(end-1))-t(locs(2)))*60;
 
 c_d = zeros(length(locs)-1,1);
@@ -121,74 +121,77 @@ for i = 1:length(zv)-1
         k = k +1;
     end
 end
-
+%End timer
+runTime = toc;
 %----------- Plot and Print ------------------
+fprintf('Script Run Time:\t\t%0.2f\ts\n\n', runTime);
 
-% fprintf('Interval Start:\t\t\t%0.2f\ts\n', t(locs(2)));
-% fprintf('Interval End:\t\t\t%0.2f\ts\n', t(locs(end-1)));
-% fprintf('Interval Duration:\t\t%0.2f\ts\n\n', t(locs(end-1))-t(locs(2)));
-% 
-% fprintf('Compression Rate (CR) :\t%0.2f\tbpm\n',      bpm);
-% fprintf('Compression Depth (CD):\t%0.2f\tcm\n\n',     100*mean(c_d));
-% 
-% if bpm < 100
-%     fprintf('Compressions should be at least %0.2g%% faster\n', 100-bpm);
-% elseif bpm > 120
-%     fprintf('Compressions should be at least %0.2g%% slower\n---\n', (bpm/1.2)-100);
-% end
-% 
-% subplot(4,1,1:2)
-% plot(t, a,'k', t,10*zv,'-r',t,100*zs,'-b')%, t(locs), pks, 'vr');
-% hold on
-% for i = 1:length(locs2)
-%    plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+c_d(i)],'-g','LineWidth',2)
-% end
-% 
-% vline(t(locs),':k');
-% hline(0,':k');
-% title('Windowed Compressions','FontSize', 14)
-% % xlim([t(1) t(1)+3])
-% % xlabel('Elapsed Time (s)','FontSize', 12)
-% ylabel('Motion Signals'   ,'FontSize', 12)
-% set(gca,'fontsize',12)
-% legend('Acceleration (m/s/s)', 'Velocity (dm/s)', 'Displacement (cm)')
-% 
-% subplot(4,1,3)
-% plot(t,100*v,'-r',t,100*zv,'-b')
-% vline(t(locs),':k');
-% hline(0,':k');
-% title('Velocity','FontSize', 13)
-% % xlim([t(1) t(1)+3])
-% % xlabel('Elapsed Time (s)','FontSize', 10)
-% ylabel('Velocity (cm/s)'   ,'FontSize', 12)
-% set(gca,'fontsize',12)
-% legend('Raw Velocity', 'Zeroed Velocity')
-% 
-% %Plot ZCV example for ***191.csv
-% if strcmp(filename,'Accelerometer_20170228-182720191.csv')
-%     hold on
-%     plot(t([107 126]),zv([107 126]),'vk','MarkerFace', 'g')
-%     vline(t([107 126]),'-.g')
-%     hold on
-%     area(t(107:126),100*zv(107:126),'FaceColor','g');
-%     zcv = -trapz(t(107:126),zv(107:126));
-%     fprintf('ZCV calculated CD:\t\t%0.3f\tcm\n',     100*zcv)
-%     fprintf('Window-integrated CD:\t%0.3f\tcm\n',    100*c_d(5))
-%     fprintf('Percent Difference:\t\t%0.2g%%\n\n',     100*abs(c_d(5)-zcv)/c_d(5))
-% end
-% 
-% subplot(4,1,4)
-% plot(t,100*s,'-r',t,100*zs,'-b')
-% hold on
-% for i = 1:length(locs2)
-%    plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+c_d(i)],'-g','LineWidth',2)
-% end
-% vline(t(locs),':k');
-% hline(0,':k');
-% title('Displacement','FontSize', 13)
-% % xlim([t(1) t(1)+3])
-% ylim([-10 2])
+fprintf('Interval Start:\t\t\t%0.2f\ts\n', t(locs(2)));
+fprintf('Interval End:\t\t\t%0.2f\ts\n', t(locs(end-1)));
+fprintf('Interval Duration:\t\t%0.2f\ts\n\n', t(locs(end-1))-t(locs(2)));
+
+fprintf('Compression Rate (CR) :\t%0.2f\tbpm\n',      bpm);
+fprintf('Compression Depth (CD):\t%0.2f\tcm\n\n',     100*mean(c_d));
+
+if bpm < 100
+    fprintf('Compressions should be at least %0.2g%% faster\n', 100-bpm);
+elseif bpm > 120
+    fprintf('Compressions should be at least %0.2g%% slower\n---\n', (bpm/1.2)-100);
+end
+
+subplot(4,1,1:2)
+plot(t, a,'k', t,10*zv,'-r',t,100*zs,'-b')%, t(locs), pks, 'vr');
+hold on
+for i = 1:length(locs2)
+   plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+c_d(i)],'-g','LineWidth',2)
+end
+
+vline(t(locs),':k');
+hline(0,':k');
+title('Windowed Compressions','FontSize', 14)
+% xlim([t(1) t(1)+3])
 % xlabel('Elapsed Time (s)','FontSize', 12)
-% ylabel('Displacment (cm)'   ,'FontSize', 12)
-% set(gca,'fontsize',12)
-% legend('Raw Displacement', 'Zeroed Displacement')
+ylabel('Motion Signals'   ,'FontSize', 12)
+set(gca,'fontsize',12)
+legend('Acceleration (m/s/s)', 'Velocity (dm/s)', 'Displacement (cm)')
+
+subplot(4,1,3)
+plot(t,100*v,'-r',t,100*zv,'--m')
+vline(t(locs),':k');
+hline(0,':k');
+title('Velocity','FontSize', 13)
+% xlim([t(1) t(1)+3])
+% xlabel('Elapsed Time (s)','FontSize', 10)
+ylabel('Velocity (cm/s)'   ,'FontSize', 12)
+set(gca,'fontsize',12)
+legend('Raw Velocity', 'Zeroed Velocity')
+
+%Plot ZCV example for ***191.csv
+if strcmp(filename,'Accelerometer_20170228-182720191.csv')
+    hold on
+    plot(t([107 126]),zv([107 126]),'vk','MarkerFace', 'c')
+    vline(t([107 126]),'-.g')
+    hold on
+    area(t(107:126),100*zv(107:126),'FaceColor',colors('carrot orange'));
+    zcv = -trapz(t(107:126),zv(107:126));
+    fprintf('ZCV calculated CD:\t\t%0.3f\tcm\n',     100*zcv)
+    fprintf('Window-integrated CD:\t%0.3f\tcm\n',    100*c_d(5))
+    fprintf('Percent Difference:\t\t%0.2g%%\n\n',     100*abs(c_d(5)-zcv)/c_d(5))
+end
+
+subplot(4,1,4)
+plot(t,100*s,'-b',t,100*zs,'--b')
+hold on
+for i = 1:length(locs2)
+   plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+c_d(i)],'-g','LineWidth',2)
+end
+plot([t(locs2(5))+.01 t(locs2(5))+.01], 100*[-pks2(5)-zcv+c_d(5) -pks2(5)+c_d(5)],'Color',colors('deep carrot orange'),'LineWidth',2)
+vline(t(locs),':k');
+hline(0,':k');
+title('Displacement','FontSize', 13)
+% xlim([t(1) t(1)+3])
+ylim([-6 2])
+xlabel('Elapsed Time (s)','FontSize', 12)
+ylabel('Displacment (cm)'   ,'FontSize', 12)
+set(gca,'fontsize',12)
+legend('Raw Displacement', 'Zeroed Displacement')

@@ -1,4 +1,7 @@
 *.asv
 *.zip
 *.csv
-/Discard
+*.txt
+*.eps
+/Data
+report_plots.m
