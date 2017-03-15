@@ -3,5 +3,7 @@
 *.csv
 *.txt
 *.eps
+*.html
+*.pdf
 /Data
 report_plots.m
