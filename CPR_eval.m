@@ -5,12 +5,12 @@ clear all;clc;tic;close all;
 %                       'Select Raw Compression Data',...
 %                       'C:\Users\Christopher\Google Drive\MetaHealth Data');
 
-% filename = 'Accelerometer_20170224-160058346.csv';
-% filename = 'Accelerometer_20170307-155158277.csv';
-% filename = 'Accelerometer_20170307-155121747.csv';
+% filename = 'Data/Accelerometer_20170224-160058346.csv';
+% filename = 'Data/Accelerometer_20170307-155158277.csv';
+% filename = 'Data/Accelerometer_20170307-155121747.csv';
 
 %Ideal example data
-filename = 'Accelerometer_20170228-182720191.csv';
+filename = 'sample_data.csv';
 
 %Extract Raw Data
 Acc = importdata(filename);
@@ -96,13 +96,13 @@ end
 %--- TODO: Implement lean approximation (quantitative measure of zero-reset) 
 bpm = length(locs(2:end-1))/(t(locs(end-1))-t(locs(2)))*60;
 
-c_d = zeros(length(locs)-1,1);
+CD = zeros(length(locs)-1,1);
 for i = 2:length(locs)
     intv = zs(locs(i-1):locs(i));
-    c_d(i-1) = max(intv)-min(intv);
+    CD(i-1) = max(intv)-min(intv);
 end
 
-%Find displacement pekas (minimums)
+%Find displacement peaks (minimums)
 [pks2, locs2] = findpeaks(-zs,'MINPEAKHEIGHT',0.01);
 
 %Zero-crossing algorithm (not robust)
@@ -127,47 +127,67 @@ runTime = toc;
 
 %Spectral Analysis
 figure
-a_fft = a(locs(1):locs(end));
-nfft = 1024;
-spec = fft(a_fft,nfft);
-f = (-nfft/2:nfft/2-1)/nfft;
-plot(f*(1/Ts),fftshift(abs(spec)),'LineSmoothing','on');
-xlim([0 20]);
+
+%Define interval and apply window
+a_fft = a(locs(2):locs(end-1));
+a_fft = a_fft.*hamming(length(a_fft));
+
+%Compute 2048 pt. DFT and extract single-sided amplitude
+N = 2048;
+P1 = abs(fft(a_fft,N)/length(a_fft));
+P1 = P1(1:N/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+
+%Plot amplitude spectrum
+f = (1/Ts)*(0:N/2)/N;
+plot(f,P1,'b','LineSmoothing','on');hold on
+
+[pks3,locs3] = findpeaks(P1,'MINPEAKHEIGHT',max(P1)/5,'MINPEAKDISTANCE',7);
+plot(f(locs3),pks3,'vr');
+
+CD_SA = 60 * f(locs3(1));
 
 %----------- Plot and Print ------------------
+opengl software;
 fprintf('Script Run Time:\t\t%0.2f\ts\n\n', runTime);
 
 fprintf('Interval Start:\t\t\t%0.2f\ts\n', t(locs(2)));
 fprintf('Interval End:\t\t\t%0.2f\ts\n', t(locs(end-1)));
 fprintf('Interval Duration:\t\t%0.2f\ts\n\n', t(locs(end-1))-t(locs(2)));
 
-fprintf('Compression Rate (CR) :\t%0.2f\tbpm\n',      bpm);
-fprintf('Compression Depth (CD):\t%0.2f\tcm\n\n',     100*mean(c_d));
+fprintf('Compression Rate :\t\t%0.2f\tbpm\n',       bpm);
+fprintf('Compression Rate (SA):\t%0.2f\tcm\n\n', CD_SA);
+
+fprintf('Compression Depth:\t\t%0.2f\tcm\n\n',      100*mean(CD));
+% fprintf('Compression Depth (SA):\t%0.2f\tcm\n\n',  ); %TODO
 
 if bpm < 100
     fprintf('Compressions should be at least %0.2g%% faster\n', 100-bpm);
 elseif bpm > 120
-    fprintf('Compressions should be at least %0.2g%% slower\n---\n', (bpm/1.2)-100);
+    fprintf('Compressions should be at least %0.2g%% slower...\n---\n',...
+            (bpm/1.2)-100);
 end
 
 figure
 subplot(4,1,1:2)
-p1 = plot(t, a,'k', t,10*zv,'-r',t,100*zs,'-b');%, t(locs), pks, 'vr');
+p1 = plot(t, a,'k', t,10*zv,'-r',t,100*zs,'-b'); hold on
 set(p1, 'LineSmoothing','on')
-hold on
+
 for i = 1:length(locs2)
-   plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+c_d(i)],'-g','LineWidth',2, 'LineSmoothing','on')
+   plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+CD(i)],'-g',...
+       'LineWidth',2,...
+       'LineSmoothing','on')
 end
 
 vline(t(locs),':k');
 hline(0,':k');
 title('Windowed Compressions','FontSize', 14)
-% xlim([t(1) t(1)+3])
-% xlabel('Elapsed Time (s)','FontSize', 12)
 ylabel('Motion Signals'   ,'FontSize', 12)
 set(gca,'fontsize',12)
-legend('Acceleration (m/s/s)', 'Velocity (dm/s)', 'Displacement (cm)')
-legend BOXOFF
+legend('Acceleration (m/s/s)',...
+        'Velocity (dm/s)',...
+        'Displacement (cm)');...
+        legend BOXOFF
 
 subplot(4,1,3)
 p2 = plot(t,100*v,'-r',t,100*zv,'--m');
@@ -182,26 +202,31 @@ set(gca,'fontsize',12)
 % legend('Raw Velocity', 'Zeroed Velocity')
 
 %Plot ZCV example for ***191.csv
-if strcmp(filename,'Accelerometer_20170228-182720191.csv')
+if strcmp(filename,'sample_data.csv')
     hold on
-    plot(t([107 126]),zv([107 126]),'vk','MarkerFace', 'c','LineSmoothing','on')
+    plot(t([107 126]),zv([107 126]),'vk','MarkerFace', 'c',...
+        'LineSmoothing','on')
     vline(t([107 126]),'-.g')
     hold on
     area(t(107:126),100*zv(107:126),'FaceColor',colors('carrot orange'));
     zcv = -trapz(t(107:126),zv(107:126));
     fprintf('ZCV calculated CD:\t\t%0.3f\tcm\n',     100*zcv)
-    fprintf('Window-integrated CD:\t%0.3f\tcm\n',    100*c_d(5))
-    fprintf('Percent Difference:\t\t%0.2g%%\n\n',    100*abs(c_d(5)-zcv)/c_d(5))
+    fprintf('Window-integrated CD:\t%0.3f\tcm\n',    100*CD(5))
+    fprintf('Percent Difference:\t\t%0.2g%%\n\n',...
+            100*abs(CD(5)-zcv)/CD(5))
 end
 
 subplot(4,1,4)
-p3 = plot(t,100*s,'-b',t,100*zs,'--b')
+p3 = plot(t,100*s,'-b',t,100*zs,'--b');
 set(p3, 'LineSmoothing','on');
 hold on
 for i = 1:length(locs2)
-   plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+c_d(i)],'-g','LineWidth',2, 'LineSmoothing','on')
+   plot([t(locs2(i)) t(locs2(i))], 100*[-pks2(i) -pks2(i)+CD(i)],'-g',...
+       'LineWidth',2,...
+       'LineSmoothing','on')
 end
-plot([t(locs2(5))+.01 t(locs2(5))+.01], 100*[-pks2(5)-zcv+c_d(5) -pks2(5)+c_d(5)],...
+plot([t(locs2(5))+.01 t(locs2(5))+.01],...
+    100*[-pks2(5)-zcv+CD(5) -pks2(5)+CD(5)],...
     'Color',colors('deep carrot orange'),...
     'LineWidth',2,...
     'LineSmoothing','on')

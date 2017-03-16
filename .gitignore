@@ -4,6 +4,7 @@
 *.txt
 *.eps
 *.html
+*.log
 *.pdf
 /Data
 report_plots.m
