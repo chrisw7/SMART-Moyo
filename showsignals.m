@@ -1,4 +1,3 @@
-
 %----------- Plot and Print ------------------
 opengl software;
 % fprintf('Script Run Time:\t\t%0.2f\ts\n\n', runTime);

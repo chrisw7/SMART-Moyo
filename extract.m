@@ -14,17 +14,6 @@ function [T, Fs, A, V, S, zV, zS, LOCS] = extract(filename)
 %   single compression
 %
 
-% Choose file w/dialog
-
-% filename = uigetfile({'*.csv','Compression Data'},...
-%                       'Select Raw Compression Data',...
-%                       'C:\Users\Christopher\Google Drive\MetaHealth Data');
-
-% filename = 'Data/Accelerometer_20170224-160058346.csv';
-% filename = 'Data/Accelerometer_20170307-155158277.csv';
-% filename = 'Data/Accelerometer_20170307-155121747.csv';
-
-
 %Extract Raw Data
 Acc = importdata(filename);
 T = Acc.data(:,1);
