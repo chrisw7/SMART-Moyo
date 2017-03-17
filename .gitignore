@@ -7,4 +7,4 @@
 *.log
 *.pdf
 /Data
-report_plots.m
+reportplots.m
