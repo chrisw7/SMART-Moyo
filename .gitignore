@@ -6,5 +6,6 @@
 *.html
 *.log
 *.pdf
+*_test.m
 /Data
 reportplots.m
