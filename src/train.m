@@ -2,7 +2,7 @@ function [RATE, DEPTH, T, A] = train(N,L,OUTPUT)
 %train Capture IMU data and compute rate/depth of compression
 %   [RATE, DEPTH] = train(N,L) returns the RATE of compressions
 %   (bpm) and DEPTH of compression (cm) for a given sampling period, L, and
-%   number of repetitions, REPS
+%   number of repetitions, REPS for a Razor 9DoF IMU @ 100Hz
 % 
 %   [RATE, DEPTH] = train(N,L,OUTPUT) additional output options for
 %   debugging/LabVIEW demo purposes
@@ -13,7 +13,7 @@ function [RATE, DEPTH, T, A] = train(N,L,OUTPUT)
 %   rate/depth is below the recommended range (-1), above said range (1) or
 %   within said range (0).
 %   ---
-%   Authour: Chris Williams | Last Updated: April 18, 2017
+%   Authour: Chris Williams | Last Updated: April 24, 2017
 %   McMaster University 2017
 
 %Check for 'debug' (verbose output) & 'simple' (boolean output) params
@@ -31,6 +31,8 @@ else
     end
 end
 
+port = 'COM4';%default port
+
 %# of samples
 if L > 10
     L = 10;
@@ -45,7 +47,10 @@ Nsamples = round(L)*100;%for 100 Hz!
 pause(1);
 for i = 1:N
     %Capture serial data
-    [T(:,i),A(:,i)] =  extract(Nsamples, 'COM4');
+    offset = calibrate(port);
+    fprintf('Begin compressions\n')
+    pause(2);
+    [T(:,i),A(:,i)] =  extract(Nsamples, port, offset);
     
     %Compute CD/CPM
     [RATE, DEPTH] = process(T(:,i),A(:,i),OUTPUT);

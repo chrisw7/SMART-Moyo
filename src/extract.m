@@ -1,14 +1,16 @@
-function [T,A] = extract(N, port)
+function [T,A] = extract(N,port,offset)
 %extract Polls sensor connected to COM4 for time/acceleration data
-%   [T,A] = extract(N) extracts time in seconds (T) and z-acc. (m/s/s)
+%   [T,A] = extract(N,port,offset) extracts time in seconds (T) and z-acc. 
+%   (m/s/s) given a # of samples, N, port identifier ('COM4'), and raw
+%   offset value
 %   ---
-%   Authour: Chris Williams | Last Updated: April 10, 2017
+%   Authour: Chris Williams | Last Updated: April 24, 2017
 %   McMaster University 2017
 
 %Open serial communications
 imu = serial(port,'BaudRate',115200);
 fopen(imu);
- 
+
 % L = length(eval( [ '[', fscanf(imu), ']' ] ));
 % if length(L)  > 4
 %     fprintf(imu,'m');
