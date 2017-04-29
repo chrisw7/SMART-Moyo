@@ -54,7 +54,15 @@ t_locs = t_locs(t_locs~=0);
 
 (length(t_locs)-1 )/(t(t_locs(end))-t(t_locs(1)))*60
 
+xlim([20 100]);
+ylim([-15 15]);
+ylabel('Acceleration (m/s/s)');
+xlabel('Elapsed Time (s)');
+
 % vline((slocs),'-b')
-vline(lows,':r')
-vline(slocs,':b')
-vline((t_locs),'--k')
+vline(lows,':*r')
+vline(peaks,':*b')
+vline(slocs,':k')
+vline((t_locs),'--^k')
+hline(1,'.--c')
+hline(0,'.:k')

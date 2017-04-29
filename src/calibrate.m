@@ -36,7 +36,7 @@ while mvmnt
     end
     
     %Timeout after 5 attempts at calibrating
-    if count == 5;
+    if count == 6;
         fclose(imu);
         fprintf('\n')
         error('Calibration timed out after 5 attempts. Try again on still surface')

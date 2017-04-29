@@ -1,10 +1,8 @@
-clf;%clc;
+%Simple demonstration of functionality (analyzes recording of length L)
+%---
+L = 3;              % cycle length
+opt.debug  = true;  % enable debug output
+opt.simple = false; % enable 'binary' output
 
-%Set ouptut options
-opt.debug = true;
-opt.simple = true;
-
-pause(1)
-[rate, depth, t, a] = train(1, 3, opt);
-rate
-depth
+%Begin training
+[rate, depth, t, a] = train(L, opt);

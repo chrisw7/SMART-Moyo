@@ -11,8 +11,8 @@ function [RATE,DEPTH] = process(T,A,OUTPUT)
 
 %Check for idle IMU
 if ~activity(A)
-    RATE = -3;
-    DEPTH = -3;
+    RATE = [-3 -3];
+    DEPTH = [-3 -3];
     fprintf('---\nNo compressions detected\n\n')
     return
 end
@@ -167,7 +167,7 @@ if OUTPUT.debug
     fprintf('\n======================================================\n')
     cprintf('*text','\t\t\t\t\tDebug Log\n\t\t\t  ')
     fprintf(datestr(now));
-    fprintf('\n=======================================================\n\n')
+    fprintf('\n======================================================\n\n')
     cprintf('-text', '%i Compressions Detected in %is\n\n', ...
         [length(locs), round(T(end))])
     
@@ -208,7 +208,7 @@ if OUTPUT.debug
         cprintf(g, 'consistent ')
     end
     cprintf('text', 'calculations)\n');
-    fprintf('=======================================================\n\n')
+    fprintf('======================================================\n\n')
     
     %---Plots
     %     figure
@@ -221,12 +221,12 @@ if OUTPUT.debug
     
     subplot(312);hold on;%--------------------------Spectral Analysis
     plot(f,abs(fft_single));
-    plot(f(freq),ampl+0.02,'vk');
+    plot(f(freq),ampl+0.01,'vk');
     xlabel('Frequency (Hz)')
     ylabel('Spectral Amplitude')
     xlim([0 25]);
     
-    subplot(313);hold on;%--------------------------Displacment
+    subplot(313);hold on;%--------------------------Displacement
     plot(T,S_k-max(S_k));plot(T,100*zS,':k')
     xlabel('Elapsed Time (s)')
     ylabel('Displacement (cm)')
