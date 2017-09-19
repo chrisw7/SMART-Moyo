@@ -10,9 +10,9 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %   McMaster University 2017
     
     %For debugging purposes
-    if OUTPUT.simple == 1
-        OUTPUT.debug = 0;
-    end
+    OUTPUT.simple = 0;
+    OUTPUT.debug = 1;
+    clf
     
     %Check for idle IMU
     if ~activity(accel)
@@ -22,24 +22,18 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         return
     end
     
-    
     %Official recommended ranges for CPR rate (cpm) & depth (cm)
-    CPR_MINRATE  = 100;
-    CPR_MAXRATE  = 120;
-
-    CPR_MINDEPTH = 5;
-    CPR_MAXDEPTH = 6;
+    CPR_MINRATE  = 100; CPR_MAXRATE  = 120;
+    CPR_MINDEPTH = 5; CPR_MAXDEPTH = 6;
 
     %Accepted tolerances for rate/depth approximations.
-    TOL_RATE  = 5;
-    TOL_DEPTH = 1;
+    TOL_RATE  = 5; TOL_DEPTH = 1;
 
     %Sampling frequency
     Fs = 1/(time(2)-time(1));
 
     %Locate individual compressions
     locs = segmentSignal(accel,Fs);
-
     if locs(1) == -2
         RATE = -2;
         DEPTH = -2;
@@ -52,10 +46,8 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %--------------------------------------------------------------------------
 
     %Initialize integrated values
-    vel = zeros(length(time),1);
-    dis = vel;
-    dv = vel;
-    zS = vel;
+    vel = zeros(length(time),1); dv = vel;
+    dis = vel; ds = vel; 
 
     %Compute raw velocity & displacement
     for i = locs(1):length(vel)%ERR: subscript must be integer (check first index in range)
@@ -67,10 +59,10 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     for i = locs(1):length(vel)
         if any(locs == i)
             dv(i) = 0;
-            zS(i) = 0;
+            ds(i) = 0;
         else
             dv(i) = dv(i-1)+(accel(i)+accel(i-1))*(1/Fs)/2;
-            zS(i) = zS(i-1)+(dv(i)+dv(i-1))*(1/Fs)/2;
+            ds(i) = ds(i-1)+(dv(i)+dv(i-1))*(1/Fs)/2;
         end
     end
 
@@ -82,14 +74,14 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     CD = zeros(length(locs)-1,1);
     CPM = (length(locs)-1 )/(time(locs(end))-time(locs(1)))*60;
     for i = 2:length(locs)
-        intv = zS(locs(i-1):locs(i));
+        intv = ds(locs(i-1):locs(i));
         CD(i-1) = 100*(max(intv)-min(intv));
     end
 
-    %-----------------
-    %Spectral Analysis
-    %-----------------
-    N = 2^nextpow2(length(time)*2);
+    %-------------------------------------
+    %        Spectral Analysis
+    %-------------------------------------
+    N = 2^nextpow2(length(time)*4);
     
     %Apply hamming window over interval
     w = hann(length(accel));
@@ -176,8 +168,8 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         end
 
         %FOR TESTING PURPOSES
-        RATE(2)  = floor(CPM);
-        DEPTH(2) = sCD;
+        %RATE(2)  = floor(CPM);
+        %DEPTH(2) = sCD;
     else
         fprintf('%i Compressions Detected\n\n',            length(locs));
         fprintf('Compression Rate :\t\t%i\tbpm\n',         RATE(1));
@@ -245,7 +237,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
 
         %---Plots
         %     figure
-        subplot(411);hold on;%--------------------------Segmented Signal
+        subplot(414);hold on;%--------------------------Segmented Signal
         plot(time,accel, 'b');
         xlabel('Elapsed Time (s)');
         ylabel('Acceleration (m/s/s)');
@@ -253,7 +245,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         ylim([-10 10]);
         vline(time(locs),':k');
         
-        subplot(412);hold on;%--------------------------Windowed Signal
+        subplot(411);hold on;%--------------------------Windowed Signal
         plot(time, A_h, '');
         xlabel('Elapsed Time (s)');
         ylabel('Acceleration (m/s/s)');
@@ -261,7 +253,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         ylim([-10 10]);
         vline(time(locs),':k');
 
-        subplot(413); hold on;%--------------------------Spectral Analysis
+        subplot(412); hold on;%--------------------------Spectral Analysis
         plot(f_bin, fft_smooth_single, 'b');
         plot(f_bin(Fs), ampl,':vk');
         xlabel('Frequency (Hz)');
@@ -269,13 +261,13 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         title("Fast Fourier Transformed Graph");
         xlim([0 25]);
 
-        subplot(414); hold on;%--------------------------Displacement
+        subplot(413); hold on;%--------------------------Displacement
         plot(time, sofT, 'g');
-        plot(time, 100*zS,'-.r');
+        plot(time, 100*ds,'-.r');
         xlabel('Elapsed Time (s)');
         ylabel('Displacement (cm)');
         title("Displacement vs Time");
-        ylim([-8 8]);
+        %ylim([-8 8]);
         vline(time(locs),':k');
     end
 end
