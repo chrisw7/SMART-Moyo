@@ -88,7 +88,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     coherent_gain = sum(w)/length(accel);
     A_h = accel.*w/coherent_gain;
 
-    %Extract windowed double sided-fft
+    %Extract windowed double sided-fft for phase and frequency analysis
     fft_polar_double = fft(A_h,N)/N;
     fft_polar_single = fft_polar_double(1:N/2 + 1);
     fft_polar_single(2:end - 1) = 2*fft_polar_single(2:end-1);
@@ -100,18 +100,10 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %Scale frequency bins
     f_bin = Fs*(0:(N/2))/N;
  
-    %Find first 3 largest peaks
-    %See what's the point of fft_raw_single
+    %Find first 3 largest peaks, filtering some noise
     [ampl,Fs] = findpeaks(abs(fft_smooth_single),...
         'MINPEAKHEIGHT',max(abs(fft_smooth_single))/3,...
         'MINPEAKDISTANCE',5);
-
-    %Calculating phase shift of acceleration (Completed?)
-    z = zeros(length(ampl), 1);
-    for i = 1:length(ampl)
-       z(i) = fft_polar_single(Fs(i));
-    end
-    theta = imag(z)./real(z);
 
     %Number of harmonics to extract from fft
     harmonics = length(ampl);
@@ -119,24 +111,27 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         harmonics = 4;
     end
 
+    %Calculating phase shift of acceleration
+    z = zeros(length(ampl), 1);
+    for i = 1:harmonics
+       z(i) = fft_polar_single(Fs(i));
+    end
+    theta = imag(z)./real(z);
+
     %Calculting S_k given A_k, fcc and number of harmonics
+    %and displacement series, s(t)
     A_k = ampl;
     S_k = zeros(length(harmonics),1);
-    for i= 1:harmonics
-        S_k(i) = (1000*A_k(i))/(2*pi*i*f_bin(Fs(i)))^2;
-    end
-       
-    %Calculating displacement series, s(t)
+    
     sofT=0;
     phi = theta + pi;
-    for i = 1:harmonics
-        sofT = sofT + S_k(i)*cos(2*pi*i*f_bin(Fs(i))*time + phi(i));
-    end
-    %Find rate, and  check to see if graph is right, because it looks too deep
-
-    %Extract mean freq. (1/min) from first three harmonics (rate)
+    
     sCPM = 0;
-    for i = 1:harmonics
+    for i= 1:harmonics
+        S_k(i) = (1000*A_k(i))/(2*pi*i*f_bin(Fs(i)))^2;        
+        sofT = sofT + S_k(i)*cos(2*pi*i*f_bin(Fs(i))*time + phi(i));
+        
+        %Extract mean freq. (1/min) from first three harmonics (rate)
         sCPM = sCPM + f_bin(Fs(i))/i;
     end
     sCPM = sCPM/harmonics * 60;
