@@ -46,8 +46,8 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %--------------------------------------------------------------------------
 
     %Initialize integrated values
-    vel = zeros(length(time),1); dv = vel;
-    dis = vel; ds = vel; 
+
+    [vel,dis,ds,dv] = deal(zeros(length(time),1));
 
     %Compute raw velocity & displacement
     for i = locs(1):length(vel)%ERR: subscript must be integer (check first index in range)
@@ -82,7 +82,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %        Spectral Analysis
     %-------------------------------------
     N = 2^nextpow2(length(time)*4);
-    
+        
     %Apply hamming window over interval
     w = hann(length(accel));
     coherent_gain = sum(w)/length(accel);
