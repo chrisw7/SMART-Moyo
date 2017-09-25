@@ -6,7 +6,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %   [RATE,DEPTH] = process(T,A,OUTPUT) computes rate and depth with the
     %   default parameters replaced by values in OUTPUT.
     %   ---
-    %   Authour: Chris Williams | Last Updated: April 18, 2017
+    %   Authors: Chris Williams, Junaid Siddiqui | Last Updated: September 25, 2017
     %   McMaster University 2017
     
     %For debugging purposes
@@ -50,7 +50,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     dis = vel; ds = vel; 
 
     %Compute raw velocity & displacement
-    for i = locs(1):length(vel)%ERR: subscript must be integer (check first index in range)
+    for i = locs(1):length(vel)
         vel(i) = vel(i-1)+(accel(i)+accel(i-1))*(1/Fs)/2;
         dis(i) = dis(i-1)+(vel(i)+vel(i-1))*(1/Fs)/2;
     end
@@ -72,7 +72,9 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
 
     %Calculated compression depth (cm) and rate(per min)
     CD = zeros(length(locs)-1,1);
-    CPM = (length(locs)-1 )/(time(locs(end))-time(locs(1)))*60;
+    [comp_accel, comp_time]  = findpeaks(accel, 'MINPEAKHEIGHT', max(accel)/2.5, 'MINPEAKDISTANCE', 25);
+    comp_time = time(comp_time);
+    CPM = 60/mean(diff(comp_time));
     for i = 2:length(locs)
         intv = ds(locs(i-1):locs(i));
         CD(i-1) = 100*(max(intv)-min(intv));
@@ -81,7 +83,8 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %-------------------------------------
     %        Spectral Analysis
     %-------------------------------------
-    N = 2^nextpow2(length(time)*4);
+    %Zero padding 
+    N = length(time);
     
     %Apply hamming window over interval
     w = hann(length(accel));
@@ -93,50 +96,46 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     fft_polar_single = fft_polar_double(1:N/2 + 1);
     fft_polar_single(2:end - 1) = 2*fft_polar_single(2:end-1);
 
-    fft_smooth_double = abs(fft_polar_double);
-    fft_smooth_single = fft_smooth_double(1:N/2 + 1);
+    fft_smooth_single = abs(fft_polar_single);
     fft_smooth_single(2:end - 1) = 2*fft_smooth_single(2:end - 1);
+    
 
     %Scale frequency bins
     f_bin = Fs*(0:(N/2))/N;
- 
-    %Find first 3 largest peaks, filtering some noise
+
+
+    %Find first 3 largest peaks
     [ampl,Fs] = findpeaks(abs(fft_smooth_single),...
         'MINPEAKHEIGHT',max(abs(fft_smooth_single))/3,...
-        'MINPEAKDISTANCE',5);
+        'MINPEAKDISTANCE',2);
 
     %Number of harmonics to extract from fft
     harmonics = length(ampl);
-    if harmonics > 4
-        harmonics = 4;
-    end
-
+    if harmonics > 3
+        harmonics = 3;
+   end
+   
     %Calculating phase shift of acceleration
-    z = zeros(length(ampl), 1);
-    for i = 1:harmonics
-       z(i) = fft_polar_single(Fs(i));
-    end
-    theta = imag(z)./real(z);
-
-    %Calculting S_k given A_k, fcc and number of harmonics
-    %and displacement series, s(t)
-    A_k = ampl;
-    S_k = zeros(length(harmonics),1);
+    z = fft_polar_single(Fs(1:harmonics));
+    theta = atan(imag(z)./real(z));
     
-    sofT=0;
+    %Using fundamental frequency
+    fcc = f_bin(Fs(1));
+
+    %Calculting S_k (cm) given A_k (m/s^2 and fcc, and finding phase change 
+    A_k = ampl';
+    S_k = A_k(1:harmonics)./((2*pi*[1:harmonics]*fcc).^2)*100;
     phi = theta + pi;
     
-    sCPM = 0;
+    %Calculating displacement series  
+    sofT = 0;
     for i= 1:harmonics
-        S_k(i) = (1000*A_k(i))/(2*pi*i*f_bin(Fs(i)))^2;        
-        sofT = sofT + S_k(i)*cos(2*pi*i*f_bin(Fs(i))*time + phi(i));
-        
-        %Extract mean freq. (1/min) from first three harmonics (rate)
-        sCPM = sCPM + f_bin(Fs(i))/i;
+        sofT = sofT + S_k(i)*cos(2*pi*i*fcc*time + phi(i));
     end
-    sCPM = sCPM/harmonics * 60;
-
-    %Calculate compression depths from reconstructed displacement signal
+    
+    %Number of compressions/min and compressions depths
+    %from spectral analysis
+    sCPM = 60 * fcc;
     sCD = range(sofT);
 
     %==========================================================================
@@ -237,7 +236,6 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         xlabel('Elapsed Time (s)');
         ylabel('Acceleration (m/s/s)');
         title("Acceleration vs Time");
-        ylim([-10 10]);
         vline(time(locs),':k');
         
         subplot(411);hold on;%--------------------------Windowed Signal
@@ -245,7 +243,6 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         xlabel('Elapsed Time (s)');
         ylabel('Acceleration (m/s/s)');
         title("Hamming Window Applied");
-        ylim([-10 10]);
         vline(time(locs),':k');
 
         subplot(412); hold on;%--------------------------Spectral Analysis
@@ -262,7 +259,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         xlabel('Elapsed Time (s)');
         ylabel('Displacement (cm)');
         title("Displacement vs Time");
-        %ylim([-8 8]);
+        ylim( [ -min(DEPTH) max(DEPTH) ] );
         vline(time(locs),':k');
     end
 end
