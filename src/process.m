@@ -46,8 +46,8 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %--------------------------------------------------------------------------
 
     %Initialize integrated values
-    vel = zeros(length(time),1); dv = vel;
-    dis = vel; ds = vel; 
+
+    [vel,dis,ds,dv] = deal(zeros(length(time),1));
 
     %Compute raw velocity & displacement
     for i = locs(1):length(vel)
