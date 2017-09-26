@@ -75,6 +75,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     [comp_accel, comp_time]  = findpeaks(accel, 'MINPEAKHEIGHT', max(accel)/2.5, 'MINPEAKDISTANCE', 25);
     comp_time = time(comp_time);
     CPM = 60/mean(diff(comp_time));
+    
     for i = 2:length(locs)
         intv = ds(locs(i-1):locs(i));
         CD(i-1) = 100*(max(intv)-min(intv));
@@ -106,14 +107,14 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
 
     %Find first 3 largest peaks
     [ampl,Fs] = findpeaks(abs(fft_smooth_single),...
-        'MINPEAKHEIGHT',max(abs(fft_smooth_single))/3,...
+        'MINPEAKHEIGHT',max(abs(fft_smooth_single))/4,...
         'MINPEAKDISTANCE',2);
 
     %Number of harmonics to extract from fft
     harmonics = length(ampl);
     if harmonics > 3
         harmonics = 3;
-   end
+    end
    
     %Calculating phase shift of acceleration
     z = fft_polar_single(Fs(1:harmonics));
@@ -122,16 +123,14 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %Using fundamental frequency
     fcc = f_bin(Fs(1));
 
-    %Calculting S_k (cm) given A_k (m/s^2 and fcc, and finding phase change 
+    %Calculting S_k (cm) given A_k (m/s^2) and fcc, and finding phase change 
     A_k = ampl';
     S_k = A_k(1:harmonics)./((2*pi*[1:harmonics]*fcc).^2)*100;
     phi = theta + pi;
     
     %Calculating displacement series  
-    sofT = 0;
-    for i= 1:harmonics
-        sofT = sofT + S_k(i)*cos(2*pi*i*fcc*time + phi(i));
-    end
+    sofT = S_k(1:harmonics).*cos([1:harmonics]*2*pi*fcc.*time + phi(1:harmonics)');
+    sofT = sum(sofT, 2);
     
     %Number of compressions/min and compressions depths
     %from spectral analysis
