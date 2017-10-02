@@ -95,9 +95,10 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
     %Extract windowed double sided-fft for phase and frequency analysis
     fft_polar_double = fft(A_h,N)/N;
     fft_polar_single = fft_polar_double(1:N/2 + 1);
-    fft_polar_single(2:end - 1) = 2*fft_polar_single(2:end-1);
-
+    
     fft_smooth_single = abs(fft_polar_single);
+    
+    fft_polar_single(2:end - 1) = 2*fft_polar_single(2:end-1);
     fft_smooth_single(2:end - 1) = 2*fft_smooth_single(2:end - 1);
     
 
