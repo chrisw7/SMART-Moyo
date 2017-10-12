@@ -18,12 +18,12 @@ def openSerial(port, baud):
     return
 
 
-def readSerial(port, bytes):
+def readSerial(port, byte):
     ser = serial.Serial(port)
-    data = ser.read(bytes).decode("utf-8").replace("\r\n","")
+    data = ser.read(byte).decode("utf-8").replace("\r\n","")
 
     return data
 
-def fixByteSize(bytes, data):
+def fixByteSize(byte, data):
 #TODO
     return
