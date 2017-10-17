@@ -1,6 +1,15 @@
 import serial
 import io
 
+def idle(accel, err):
+    tmp = max(accel) - min(accel)
+    if abs(tmp) <= 0.03*err:
+        print("Accelerometer is idle")
+        return True
+
+    return False
+
+
 def openSerial(port, baud):
     ser = serial.Serial()
 
