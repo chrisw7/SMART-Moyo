@@ -1,14 +1,18 @@
 from time import time as cTime
 import calibrate
 import comPort
+import feedback
 import matplotlib.animation as animation
 import msvcrt
 import numpy
 import spectralAnalysis
+import sys
 
 
-#API Key pxkXiGLfWlArewVQM5Nv
-#py = plotly.plotly("Username", "API-Key").
+minDepth, maxDepth, depthTolerance = calibrate.age(sys.argv[0])
+print(minDepth, maxDepth, depthTolerance)
+
+minRate, maxRate, rateTolerance = 100, 120, 5
 
 compressionresetTime = 2
 txyz = 3 #Z index
@@ -43,11 +47,9 @@ if accel.all() == False:
     exit()
 
 print("Calibrated. \nBegin Compressions")
-print(offset)
 
 
 while True:
-
     data, sTime, accel = [], [], []
 
     currentTime = int(cTime())
@@ -66,14 +68,14 @@ while True:
         accel = data[:, txyz]
 
         sTime = calibrate.scaleTime(sTime)
-
         accel = (accel[:] - offset)*GRAVITY
 
         data = data.tolist()
 
     #Call fft here
-    if (comPort.idle(accel, 1.5)):
+    if (comPort.idle(accel, 10)):
         continue
-    [sofT, fcc] = spectralAnalysis.calculations(sTime, accel, numpy)
-#def plot(x, y, xlbl, ylbl, title, subplt):
-    #graph.plot(sTime, sofT, "Time (s)", "Displacement", "Distance vs Time", 111)
+    [sofT, rate] = spectralAnalysis.calculations(sTime, accel, numpy)
+
+    feedback.depth(sofT, maxDepth, minDepth, depthTolerance)
+    feedback.rate(rate, maxRate, minRate, rateTolerance)
