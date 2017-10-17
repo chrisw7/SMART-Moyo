@@ -3,7 +3,7 @@ import io
 
 def idle(accel, err):
     tmp = max(accel) - min(accel)
-    if abs(tmp) <= 0.03*err:
+    if abs(tmp) <= 0.09*err:
         print("Accelerometer is idle")
         return True
 
