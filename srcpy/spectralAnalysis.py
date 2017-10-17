@@ -1,8 +1,8 @@
 from peakutils import peak
 from math import atan2
 from math import pi
+import matplotlib.pyplot as plt
 import graph
-
 
 def calculations(time, accel, numpy):
     #Sampling Frequency
@@ -29,12 +29,10 @@ def calculations(time, accel, numpy):
 
     #Scale Frequency Bins
     freqBin = Fs*numpy.arange(int(N/2))/N
-    print("FreqBin", freqBin)
     ampl = []
 
     #Find first 3 largest peaks
     indexes = peak.indexes(fftSmooth, min_dist= 2 )
-    print("peaks", peak.indexes(fftSmooth, min_dist= 2 ))
     print("indexes", indexes)
     for i in range(len(indexes)):
         ampl.append(fftSmooth[indexes[i]])
@@ -70,11 +68,17 @@ def calculations(time, accel, numpy):
     for i in range(1, harmonics + 1):
         sofT += S_k[i-1]*numpy.cos(2*pi*i*fcc*time + phi[i-1])
 
+    depth = max(sofT) - min(sofT)
+    rate = fcc*60
+
     #print(fftSmooth)
     f = open("rate_depths.txt", "a")
-    graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1)
-    #graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 1)
-    #graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0)
-    print("\nfcc ", fcc)
-    print("Depth ", max(sofT) - min(sofT))
-    return sofT, fcc
+    f.write("Rate: " + str(fcc*60) + "\t" + "Depth: " + str(depth) + "\n")
+
+    graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1, plt)
+    graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 0, plt)
+    graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0, plt)
+    plt.show(block=False)
+
+    f.close()
+    return sofT, rate
