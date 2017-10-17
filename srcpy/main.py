@@ -1,17 +1,23 @@
-from time import sleep
+from time import time as cTime
 import calibrate
-import numpy
 import comPort
+import matplotlib.animation as animation
 import msvcrt
+import numpy
+import spectralAnalysis
+
 
 #API Key pxkXiGLfWlArewVQM5Nv
-#py = plotly.plotly("Username", "API-Key")
+#py = plotly.plotly("Username", "API-Key").
+
+compressionresetTime = 2
+txyz = 3 #Z index
 
 port = "COM5"
 baud = 2400
-bytes = 26  #208 bits
+byte = 26  #208 bits
 #seconds =2400/208 = 11.5
-print("Using COM5 as default, and baudrate of 19200")
+print("Using COM5 as default, and baudrate of ", baud)
 
 comPort.openSerial(port, baud)
 
@@ -20,30 +26,54 @@ print("DO NOT MOVE")
 
 data = [];
 for i in range(0, 39):
-    rawData = comPort.readSerial(port, bytes)
+    rawData = comPort.readSerial(port, byte)
     rawArray = calibrate.formatData(rawData)
     data.append(rawArray)
 
 data = numpy.array(data)
-time = data[:,0]
-accel = data[:, 1:4]
+accel = data[:, txyz]
 
-[time, accel] = calibrate.offsetData(time, accel, numpy)
-print(time)
+offset = calibrate.offsetAccel(accel, numpy)
 
-if time.all() == False and accel.all() == False:
+GRAVITY = 9.80665
+accel = (accel[:] - offset)
+
+if accel.all() == False:
     print("You moved it. Restart the process")
     exit()
 
-
-sleep(0.5)
-print("Calibrated")
-
-sleep(0.5)
-print("Begin Compressions")
+print("Calibrated. \nBegin Compressions")
+print(offset)
 
 
 while True:
-    rawData = comPort.readSerial(port)
-    rawArray = rawData.split(',').strip()
-    #Put code in here
+
+    data, sTime, accel = [], [], []
+
+    currentTime = int(cTime())
+    endTime = currentTime + compressionresetTime
+
+    while currentTime < endTime:
+        currentTime = int(cTime())
+
+        rawData = comPort.readSerial(port, byte)
+        rawArray = calibrate.formatData(rawData)
+
+        data.append(rawArray)
+        data = numpy.array(data)
+
+        sTime = data[:, 0]
+        accel = data[:, txyz]
+
+        sTime = calibrate.scaleTime(sTime)
+
+        accel = (accel[:] - offset)*GRAVITY
+
+        data = data.tolist()
+
+    #Call fft here
+    if (comPort.idle(accel, 1.5)):
+        continue
+    [sofT, fcc] = spectralAnalysis.calculations(sTime, accel, numpy)
+#def plot(x, y, xlbl, ylbl, title, subplt):
+    #graph.plot(sTime, sofT, "Time (s)", "Displacement", "Distance vs Time", 111)
