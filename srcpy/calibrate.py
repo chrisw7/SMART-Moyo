@@ -9,16 +9,13 @@ def formatData(data):
     return data
 
 
-def offsetAccel(accel, xyz, numpy):
-    offset = []
+def offsetAccel(accel, numpy):
     tmp = max(accel) - min(accel)
     if tmp > 0.2:
         accel[:] = False
         return accel
 
-    offset.append(numpy.mean(accel))
-
-    return offset
+    return numpy.mean(accel)
 
 def scaleTime(time):
     time = (time - time[0]) / 1000
