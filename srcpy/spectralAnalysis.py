@@ -71,10 +71,11 @@ def calculations(time, accel, numpy):
     depth = max(sofT) - min(sofT)
     rate = fcc*60
 
-    #print(fftSmooth)
+    #Writes to txt (debugging only)
     f = open("rate_depths.txt", "a")
     f.write("Rate: " + str(fcc*60) + "\t" + "Depth: " + str(depth) + "\n")
 
+    #Plots graph (development only)
     graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1, plt)
     graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 0, plt)
     graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0, plt)

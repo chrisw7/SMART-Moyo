@@ -1,3 +1,4 @@
+#Returns depth feedback to user based on standards and compression quality
 def depth(sofT, maxDepth, minDepth, tolerance):
     depth = max(sofT) - min(sofT)
 
@@ -12,6 +13,7 @@ def depth(sofT, maxDepth, minDepth, tolerance):
     return
 
 
+#Returns rate feedback to user based on standards and compression quality
 def rate(rate, maxRate, minRate, tolerance):
     print(rate)
     if  rate > maxRate + tolerance:

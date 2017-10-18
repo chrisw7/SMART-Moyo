@@ -11,6 +11,5 @@ def plot(x, y, xlbl, ylbl, title, subplt, num, plt):
     plt.xlabel(xlbl)
     plt.ylabel(ylbl)
     plt.title(title)
-    #plt.draw()
 
     return

@@ -8,19 +8,20 @@ import numpy
 import spectralAnalysis
 import sys
 
-
+#Official recommended ranges for CPR rate (cpm) and depth (cm)
+#Adjusts depending on age of person (adult, youth, child, infant)
 minDepth, maxDepth, depthTolerance = calibrate.age(sys.argv[0])
-print(minDepth, maxDepth, depthTolerance)
-
 minRate, maxRate, rateTolerance = 100, 120, 5
+
+GRAVITY = 9.80665
 
 compressionresetTime = 2
 txyz = 3 #Z index
 
 port = "COM5"
+#seconds = 2400 bps / 208 bits = 11.5 /second
 baud = 2400
 byte = 26  #208 bits
-#seconds =2400/208 = 11.5
 print("Using COM5 as default, and baudrate of ", baud)
 
 comPort.openSerial(port, baud)
@@ -29,17 +30,20 @@ print("Calibrating accelerometer")
 print("DO NOT MOVE")
 
 data = [];
+#Takes accelerometer data to perform calibrations
 for i in range(0, 39):
     rawData = comPort.readSerial(port, byte)
     rawArray = calibrate.formatData(rawData)
     data.append(rawArray)
 
+#Takes one component of acceleration to perform calculationss
 data = numpy.array(data)
 accel = data[:, txyz]
 
+
+#Calibrates acceleromter
 offset = calibrate.offsetAccel(accel, numpy)
 
-GRAVITY = 9.80665
 accel = (accel[:] - offset)
 
 if accel.all() == False:
@@ -48,7 +52,7 @@ if accel.all() == False:
 
 print("Calibrated. \nBegin Compressions")
 
-
+#Performs analysis on compressions every 2 seconds concurrent with compressions
 while True:
     data, sTime, accel = [], [], []
 

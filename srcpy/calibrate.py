@@ -1,3 +1,4 @@
+#Splits time and xyz accleration into an array [t,x,y,z]
 def formatData(data):
     data = data.split(', ')
 
@@ -8,7 +9,7 @@ def formatData(data):
 
     return data
 
-
+#Returns average of stationary acceleromater
 def offsetAccel(accel, numpy):
     tmp = max(accel) - min(accel)
     if tmp > 0.2:
@@ -17,12 +18,13 @@ def offsetAccel(accel, numpy):
 
     return numpy.mean(accel)
 
+#Converts time from ms to s
 def scaleTime(time):
     time = (time - time[0]) / 1000
 
     return time
 
-#Returns mindepth, maxdepth and tolerance
+#Returns mindepth, maxdepth and tolerance based
 def age(arg):
     if arg == "infant".lower():
         return 2, 3, 0.5
