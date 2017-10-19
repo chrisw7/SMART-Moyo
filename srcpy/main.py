@@ -3,7 +3,6 @@ import calibrate
 import comPort
 import feedback
 import matplotlib.animation as animation
-import msvcrt
 import numpy
 import spectralAnalysis
 import sys
@@ -22,9 +21,10 @@ port = "COM5"
 #seconds = 2400 bps / 208 bits = 11.5 /second
 baud = 2400
 byte = 26  #208 bits
-print("Using COM5 as default, and baudrate of ", baud)
+print("Using " + str(port) + " as default, and baudrate of " + str(baud) )
 
 comPort.openSerial(port, baud)
+
 
 print("Calibrating accelerometer")
 print("DO NOT MOVE")
@@ -32,6 +32,7 @@ print("DO NOT MOVE")
 data = [];
 #Takes accelerometer data to perform calibrations
 for i in range(0, 39):
+    print(data)
     rawData = comPort.readSerial(port, byte)
     rawArray = calibrate.formatData(rawData)
     data.append(rawArray)
