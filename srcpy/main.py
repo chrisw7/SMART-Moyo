@@ -84,3 +84,4 @@ while True:
 
     feedback.depth(sofT, maxDepth, minDepth, depthTolerance)
     feedback.rate(rate, maxRate, minRate, rateTolerance)
+    print("----------------------------------------------------------------------------")
