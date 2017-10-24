@@ -12,14 +12,11 @@ def idle(accel, err):
 
 #Opens up manual serial port
 def openSerial(port, baud):
-    ser = serial.Serial()
-
-    ser.port = port
-    ser.baudrate = baud
-    ser.open()
+    ser = serial.Serial(port, baud)
 
     if ser.isOpen():
-         print(ser.name + ' is open')
+        print(ser)
+        print(ser.name + ' is open')
     else:
         print("Port is not open")
         ser.close()
@@ -33,6 +30,29 @@ def readSerial(port, byte):
     data = ser.read(byte).decode("utf-8").replace("\r\n","")
 
     return data
+
+def openBluetooth(port, baud):
+    ser = serial.Serial()
+
+    ser = serial
+    ser.port = port
+    ser.baudrate = baud
+
+    ser.open
+
+    if ser.isOpen():
+         print(ser.name + ' is open')
+    else:
+        print("Port is not open")
+        ser.close()
+        exit()
+    return
+
+
+def readBluetooth():
+    ser = serial.Serial(port)
+    data = ser.read(byte).decode("utf-8").replace("\r\n","")
+    return
 
 #Fixes each line as time becomes large
 def fixByteSize(byte, data):
