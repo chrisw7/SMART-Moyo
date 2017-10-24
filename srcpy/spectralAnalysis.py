@@ -33,7 +33,6 @@ def calculations(time, accel, numpy):
 
     #Find first 3 largest peaks
     indexes = peak.indexes(fftSmooth, min_dist= 2 )
-    print("indexes", indexes)
     for i in range(len(indexes)):
         ampl.append(fftSmooth[indexes[i]])
         Fs = indexes
@@ -57,7 +56,6 @@ def calculations(time, accel, numpy):
 
     #Calculating S_k (cm) given A_k(m/s/s) and fcc, finding phase shift
     A_k = ampl[0:harmonics]
-    print("AK", A_k)
     tmp = numpy.arange(1, harmonics + 1)
     tmp1 = (tmp*tmp)*(2*pi*fcc)**2
     S_k = 100*(A_k/tmp1)
