@@ -1,5 +1,9 @@
 #Returns depth feedback to user based on standards and compression quality
 def depth(sofT, maxDepth, minDepth, tolerance):
+    if type(sofT) == int:
+        print("Did you stop doing compressions?")
+        return
+
     depth = max(sofT) - min(sofT)
     print("Depth: ", str(depth))
 
