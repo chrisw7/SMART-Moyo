@@ -2,7 +2,6 @@ from time import time as cTime
 import calibrate
 import comPort
 import feedback
-import matplotlib.animation as animation
 import numpy
 import spectralAnalysis
 import sys
@@ -17,14 +16,14 @@ GRAVITY = 9.80665
 compressionresetTime = 2
 txyz = 3 #Z index
 
-port = "COM5"
+port = comPort.serial_ports()
+
 #seconds = 2400 bps / 208 bits = 11.5 /second
-baud = 2400
+baud = 115200
 byte = 26  #208 bits
 print("Using " + str(port) + " as default, and baudrate of " + str(baud) )
 
 comPort.openSerial(port, baud)
-
 
 print("Calibrating accelerometer")
 print("DO NOT MOVE")
@@ -32,9 +31,8 @@ print("DO NOT MOVE")
 data = [];
 #Takes accelerometer data to perform calibrations
 for i in range(0, 39):
-    print(data)
     rawData = comPort.readSerial(port, byte)
-    rawArray = calibrate.formatData(rawData)
+    rawArray = calibrate.formatData(rawData, numpy)
     data.append(rawArray)
 
 #Takes one component of acceleration to perform calculationss
@@ -64,7 +62,7 @@ while True:
         currentTime = int(cTime())
 
         rawData = comPort.readSerial(port, byte)
-        rawArray = calibrate.formatData(rawData)
+        rawArray = calibrate.formatData(rawData, numpy)
 
         data.append(rawArray)
         data = numpy.array(data)
