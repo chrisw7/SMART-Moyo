@@ -63,8 +63,12 @@ def calculations(time, accel, numpy):
 
     #Calculating Displacement Series
     sofT = numpy.zeros(len(time))
-    for i in range(1, harmonics + 1):
-        sofT += S_k[i-1]*numpy.cos(2*pi*i*fcc*time + phi[i-1])
+    if harmonics != 1:
+        for i in range(0, harmonics):
+            sofT += S_k[i]*numpy.cos(2*pi*(i+1)*fcc*time + phi[i])
+
+    else:
+        sofT = S_k*numpy.cos(2*pi*fcc*time + phi)
 
     depth = max(sofT) - min(sofT)
     rate = fcc*60
