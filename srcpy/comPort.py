@@ -11,7 +11,7 @@ import sys
     :returns:
         A list of the serial ports available on the system
 """
-def serial_ports():
+def findPorts():
 
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
@@ -61,29 +61,6 @@ def readSerial(port, byte):
     ser = serial.Serial(port)
     data = ser.read(byte).decode("utf-8")
     return data
-
-def openBluetooth(port, baud):
-    ser = serial.Serial()
-
-    ser = serial
-    ser.port = port
-    ser.baudrate = baud
-
-    ser.open
-
-    if ser.isOpen():
-         print(ser.name + ' is open')
-    else:
-        print("Port is not open")
-        ser.close()
-        exit()
-    return
-
-
-def readBluetooth():
-    ser = serial.Serial(port)
-    data = ser.read(byte).decode("utf-8").replace("\r\n","")
-    return
 
 #Fixes each line as time becomes large
 def fixByteSize(byte, data):

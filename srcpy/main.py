@@ -16,13 +16,15 @@ GRAVITY = 9.80665
 compressionresetTime = 2
 txyz = 3 #Z index
 
-port = comPort.serial_ports()
+#Dynamically
+port = comPort.findPorts()
 
 #seconds = 2400 bps / 208 bits = 11.5 /second
 baud = 115200
 byte = 26  #208 bits
 print("Using " + str(port) + " as default, and baudrate of " + str(baud) )
 
+#Opens the serial port
 comPort.openSerial(port, baud)
 
 print("Calibrating accelerometer")
