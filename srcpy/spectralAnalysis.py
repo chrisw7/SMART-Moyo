@@ -63,21 +63,25 @@ def calculations(time, accel, numpy):
 
     #Calculating Displacement Series
     sofT = numpy.zeros(len(time))
-    for i in range(1, harmonics + 1):
-        sofT += S_k[i-1]*numpy.cos(2*pi*i*fcc*time + phi[i-1])
+    if harmonics != 1:
+        for i in range(0, harmonics):
+            sofT += S_k[i]*numpy.cos(2*pi*(i+1)*fcc*time + phi[i])
+
+    else:
+        sofT = S_k*numpy.cos(2*pi*fcc*time + phi)
 
     depth = max(sofT) - min(sofT)
     rate = fcc*60
 
     #Writes to txt (debugging only)
-    f = open("rate_depths.txt", "a")
+    f = open("rate_depths.txt", "a+")
     f.write("Rate: " + str(fcc*60) + "\t" + "Depth: " + str(depth) + "\n")
 
     #Plots graph (development only)
     graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1, plt)
     graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 0, plt)
     graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0, plt)
-    plt.show(block=False)
+    #plt.show(block=False)
 
     f.close()
     return sofT, rate

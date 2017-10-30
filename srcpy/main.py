@@ -2,10 +2,26 @@ from time import time as cTime
 import calibrate
 import comPort
 import feedback
-import matplotlib.animation as animation
 import numpy
 import spectralAnalysis
 import sys
+import time
+import _thread as thread
+
+def close_program(L):
+    inpt = ""
+    try:
+        inpt = input()
+    except SyntaxError:
+        inpt = True
+    L.append(inpt)
+
+directory = "records"
+filename = str(int(cTime()))
+
+
+L = []
+thread.start_new_thread(close_program, (L,))
 
 #Official recommended ranges for CPR rate (cpm) and depth (cm)
 #Adjusts depending on age of person (adult, youth, child, infant)
@@ -17,14 +33,16 @@ GRAVITY = 9.80665
 compressionresetTime = 2
 txyz = 3 #Z index
 
-port = "COM5"
+#Dynamically
+port = comPort.findPorts()
+
 #seconds = 2400 bps / 208 bits = 11.5 /second
-baud = 2400
+baud = 115200
 byte = 26  #208 bits
 print("Using " + str(port) + " as default, and baudrate of " + str(baud) )
 
+#Opens the serial port
 comPort.openSerial(port, baud)
-
 
 print("Calibrating accelerometer")
 print("DO NOT MOVE")
@@ -32,9 +50,8 @@ print("DO NOT MOVE")
 data = [];
 #Takes accelerometer data to perform calibrations
 for i in range(0, 39):
-    print(data)
     rawData = comPort.readSerial(port, byte)
-    rawArray = calibrate.formatData(rawData)
+    rawArray = calibrate.formatData(rawData, numpy)
     data.append(rawArray)
 
 #Takes one component of acceleration to perform calculationss
@@ -49,6 +66,7 @@ accel = (accel[:] - offset)
 
 if accel.all() == False:
     print("You moved it. Restart the process")
+    time.sleep(0.5)
     exit()
 
 print("Calibrated. \nBegin Compressions")
@@ -64,24 +82,27 @@ while True:
         currentTime = int(cTime())
 
         rawData = comPort.readSerial(port, byte)
-        rawArray = calibrate.formatData(rawData)
+        rawArray = calibrate.formatData(rawData, numpy)
 
         data.append(rawArray)
         data = numpy.array(data)
 
         sTime = data[:, 0]
         accel = data[:, txyz]
+        data = data.tolist()
 
         sTime = calibrate.scaleTime(sTime)
         accel = (accel[:] - offset)*GRAVITY
 
-        data = data.tolist()
+        if L:
+            print("You have closed the program")
+            time.sleep(0.5)
+            exit()
 
     #Call fft here
     if (comPort.idle(accel, 10)):
         continue
     [sofT, rate] = spectralAnalysis.calculations(sTime, accel, numpy)
 
-    feedback.depth(sofT, maxDepth, minDepth, depthTolerance)
-    feedback.rate(rate, maxRate, minRate, rateTolerance)
+    feedback.depth_rate(sofT, maxDepth, minDepth, depthTolerance, rate, maxRate, minRate, rateTolerance)
     print("----------------------------------------------------------------------------")

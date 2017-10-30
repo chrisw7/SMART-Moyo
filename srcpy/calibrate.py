@@ -1,13 +1,16 @@
 #Splits time and xyz accleration into an array [t,x,y,z]
-def formatData(data):
-    data = data.split(', ')
+def formatData(data, numpy):
+    if "\r\n" in data:
+        data = data.replace("\r\n","")
 
-    for i in range(len(data)):
-        #data[i] = data[i].strip()
-        data[i] = float(data[i])
-    data[0] = int(data[0])
+    data = data.split(',')
+    frmtData  = numpy.zeros(4)
+    for i in range(0, 4):
+        frmtData[i] = data[i].strip()
+        frmtData[i] = float(data[i].encode('utf-8'))
+    #data[0] = int(data[0])
 
-    return data
+    return frmtData
 
 #Returns average of stationary acceleromater
 def offsetAccel(accel, numpy):
