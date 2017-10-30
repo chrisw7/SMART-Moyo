@@ -1,4 +1,3 @@
-import io
 import glob
 import serial
 import sys
@@ -31,6 +30,12 @@ def findPorts():
             result.append(port)
         except (OSError, serial.SerialException):
             pass
+
+    if result == []:
+        print("\n\nThe accelerometer is not on or not connected\n\n")
+        print("If you have turned it on, give it a few moments and try again shortly\n\n")
+        exit()
+
     return result[0]
 
 
