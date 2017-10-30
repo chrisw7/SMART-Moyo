@@ -259,7 +259,7 @@ function [RATE,DEPTH] = process(time, accel,OUTPUT)
         xlabel('Elapsed Time (s)');
         ylabel('Displacement (cm)');
         title("Displacement vs Time");
-        ylim( [ -min(DEPTH) max(DEPTH) ] );
+        ylim( [ -8 8] );
         vline(time(locs),':k');
     end
 end
