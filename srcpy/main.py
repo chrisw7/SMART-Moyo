@@ -5,6 +5,23 @@ import feedback
 import numpy
 import spectralAnalysis
 import sys
+import time
+import _thread as thread
+
+def close_program(L):
+    inpt = ""
+    try:
+        inpt = input()
+    except SyntaxError:
+        inpt = True
+    L.append(inpt)
+
+directory = "records"
+filename = str(int(cTime()))
+
+
+L = []
+thread.start_new_thread(close_program, (L,))
 
 #Official recommended ranges for CPR rate (cpm) and depth (cm)
 #Adjusts depending on age of person (adult, youth, child, infant)
@@ -49,6 +66,7 @@ accel = (accel[:] - offset)
 
 if accel.all() == False:
     print("You moved it. Restart the process")
+    time.sleep(0.5)
     exit()
 
 print("Calibrated. \nBegin Compressions")
@@ -71,17 +89,20 @@ while True:
 
         sTime = data[:, 0]
         accel = data[:, txyz]
+        data = data.tolist()
 
         sTime = calibrate.scaleTime(sTime)
         accel = (accel[:] - offset)*GRAVITY
 
-        data = data.tolist()
+        if L:
+            print("You have closed the program")
+            time.sleep(0.5)
+            exit()
 
     #Call fft here
     if (comPort.idle(accel, 10)):
         continue
     [sofT, rate] = spectralAnalysis.calculations(sTime, accel, numpy)
 
-    feedback.depth(sofT, maxDepth, minDepth, depthTolerance)
-    feedback.rate(rate, maxRate, minRate, rateTolerance)
+    feedback.depth_rate(sofT, maxDepth, minDepth, depthTolerance, rate, maxRate, minRate, rateTolerance)
     print("----------------------------------------------------------------------------")
