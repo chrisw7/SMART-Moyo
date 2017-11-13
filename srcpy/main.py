@@ -3,25 +3,31 @@ import calibrate
 import comPort
 import feedback
 import numpy
+import os
 import spectralAnalysis
 import sys
 import time
 import _thread as thread
 
-def close_program(L):
+def close_program(L, sysVersion):
     inpt = ""
-    try:
+    if int(sysVersion) < 3:
+        inpt = raw_input()
+    else:
         inpt = input()
-    except SyntaxError:
-        inpt = True
     L.append(inpt)
 
-directory = "records"
-filename = str(int(cTime()))
-
+filePath = "records"
+sysVersion = sys.version[0]
 
 L = []
-thread.start_new_thread(close_program, (L,))
+thread.start_new_thread(close_program, (L,sysVersion))
+
+fileName = "junaid" #feedback.getUser(sysVersion)
+#age = feedback.getAge(sysVersion)
+
+if not os.path.exists(filePath):
+    os.makedirs(filePath)
 
 #Official recommended ranges for CPR rate (cpm) and depth (cm)
 #Adjusts depending on age of person (adult, youth, child, infant)
@@ -66,7 +72,7 @@ accel = (accel[:] - offset)
 
 if accel.all() == False:
     print("You moved it. Restart the process")
-    time.sleep(0.5)
+    time.sleep(1)
     exit()
 
 print("Calibrated. \nBegin Compressions")
@@ -104,5 +110,10 @@ while True:
         continue
     [sofT, rate] = spectralAnalysis.calculations(sTime, accel, numpy)
 
-    feedback.depth_rate(sofT, maxDepth, minDepth, depthTolerance, rate, maxRate, minRate, rateTolerance)
+    [depth, rate] = feedback.depth_rate(sofT, maxDepth, minDepth, depthTolerance, rate, maxRate, minRate, rateTolerance)
+
+
+    feedback.writeToFile(filePath, fileName, depth, rate)
+
+
     print("----------------------------------------------------------------------------")
