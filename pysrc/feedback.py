@@ -6,8 +6,11 @@ def getUser(sysVersion):
         userName = raw_input(msg)
     else:
         userName = input(msg)
+    fileName = ""
+    for i in userName:
+        fileName += str(ord(i))
 
-    return userName
+    return fileName
 
 def getAge(sysVersion):
     msg = "Please Specify if adult/youth/child/infant: "

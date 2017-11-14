@@ -25,7 +25,6 @@ fileName = feedback.getUser(sysVersion)
 #age = feedback.getAge(sysVersion)
 
 GRAVITY = 9.80665
-
 compressionresetTime = 2
 txyz = 3 #Z index
 
@@ -123,7 +122,7 @@ while True:
     [sofT, rate] = spectralAnalysis.calculations(sTime, accel, numpy)
 
     if repeatUser:
-        iteration = iteration + 1
+        iteration += 1
         if iteration > minIterations:
             currentScore = feedback.getNewScore(filePath,
             numpy.mean([maxRate, minRate]),
@@ -158,5 +157,5 @@ while True:
     feedback.writeToRecord(filePath, depth, rate)
 
 
-
-    print("----------------------------------------------------------------------------\n\n\n\n\n\n")
+    print("\nUser ID:  " + fileName)
+    print("\n----------------------------------------------------------------------------\n\n\n\n\n\n")
