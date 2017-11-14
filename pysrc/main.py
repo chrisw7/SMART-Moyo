@@ -9,7 +9,6 @@ import sys
 import time
 import _thread as thread
 
-
 def close_program(L, sysVersion):
     inpt = ""
     if int(sysVersion) < 3:
@@ -22,7 +21,7 @@ repeatUser = False
 directory = "records"
 sysVersion = sys.version[0]
 
-fileName = "junaids" #feedback.getUser(sysVersion)
+fileName = feedback.getUser(sysVersion)
 #age = feedback.getAge(sysVersion)
 
 GRAVITY = 9.80665
@@ -46,7 +45,6 @@ if os.path.isfile(filePath):
                 numpy.mean([minRate, maxRate]),
                 numpy.mean([minDepth, maxDepth]),
                 numpy)
-    print(previousScore)
     os.remove(filePath)
 
 
@@ -55,13 +53,12 @@ if os.path.isfile(filePath):
 port = comPort.findPorts()
 baud = 115200
 byte = 26  #208 bits
-print("Using " + str(port) + " as default, and baudrate of " + str(baud) )
 
 #Opens the serial port
 comPort.openSerial(port, baud)
 
-print("Calibrating accelerometer")
-print("DO NOT MOVE")
+print("\nCalibrating accelerometer")
+print("\nDO NOT MOVE\n\n\n")
 
 data = [];
 #Takes accelerometer data to perform calibrations
@@ -85,13 +82,14 @@ if accel.all() == False:
     time.sleep(1)
     exit()
 
-print("Calibrated. \nBegin Compressions")
+print("Calibrated \n\nBegin Compressions")
 
 L = []
 thread.start_new_thread(close_program, (L,sysVersion))
 
 #Performs analysis on compressions every 2 seconds concurrent with compressions
-iteration = 0;
+iteration = 0
+minIterations = 5
 while True:
     data, sTime, accel = [], [], []
 
@@ -124,20 +122,41 @@ while True:
         continue
     [sofT, rate] = spectralAnalysis.calculations(sTime, accel, numpy)
 
-    [depth, rate] = feedback.depth_rate(sofT, maxDepth, minDepth, depthTolerance, rate, maxRate, minRate, rateTolerance)
+    if repeatUser:
+        iteration = iteration + 1
+        if iteration > minIterations:
+            currentScore = feedback.getNewScore(filePath,
+            numpy.mean([maxRate, minRate]),
+            numpy.mean([maxDepth, minDepth]),
+            iteration,
+            numpy)
+
+            msgDepth, msgRate = feedback.compareScore(currentScore, previousScore)
+
+    if iteration > minIterations:
+        [depth, rate] = feedback.depth_rate(sofT,
+                        maxDepth,
+                        minDepth,
+                        depthTolerance,
+                        rate,
+                        maxRate,
+                        minRate,
+                        rateTolerance,
+                        msgDepth,
+                        msgRate)
+    else:
+        [depth, rate] = feedback.depth_rate(sofT,
+                        maxDepth,
+                        minDepth,
+                        depthTolerance,
+                        rate,
+                        maxRate,
+                        minRate,
+                        rateTolerance,
+                        "", "")
 
     feedback.writeToRecord(filePath, depth, rate)
 
-    if repeatUser:
-        iteration = iteration + 1
-        currentScore = feedback.getNewScore(filePath,
-        numpy.mean([maxRate, minRate]),
-        numpy.mean([maxDepth, minDepth]),
-        iteration,
-        numpy)
-        feedback.compareScore(currentScore, previousScore)
 
 
-
-
-    print("----------------------------------------------------------------------------")
+    print("----------------------------------------------------------------------------\n\n\n\n\n\n")

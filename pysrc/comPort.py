@@ -1,7 +1,7 @@
-import glob
+import globanswer
 import serial
 import sys
-
+import time
 
 """ Lists serial port names
 
@@ -45,6 +45,7 @@ def findPorts():
     if result == []:
         print("\n\nThe accelerometer is not on or not connected\n\n")
         print("If you have turned it on, give it a few moments and try again shortly\n\n")
+        time.sleep(0.5)
         exit()
     return result[0]
 

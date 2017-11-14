@@ -19,27 +19,26 @@ def getAge(sysVersion):
 
 #Some arbitrary algorithm
 def getExistingScore(filePath, absRate, absDepth, numpy):
-    rateScore = []
-    depthScore = []
+    rates = []
+    depths = []
 
     with open(filePath, 'rb') as csvfile:
         f = csv.reader(csvfile, quotechar='|', quoting=csv.QUOTE_MINIMAL)
         for row in f:
-            rateScore.append(int(row[0]))
-            depthScore.append(float(row[1]))
+            rates.append(int(row[0]))
+            depths.append(float(row[1]))
 
-        #Include standard deviation in this
-        avgRate = numpy.mean(rateScore)
-        avgDepth = numpy.mean(depthScore)
+        #Include standard deviation in this?
+        avgRate = numpy.mean(rates)
+        avgDepth = numpy.mean(depths)
 
-        rateScore = 1 - abs(avgRate - absRate)/absRate
-        depthScore =  1 - abs(avgDepth - absDepth)/absDepth
+        rateScore = abs(avgRate - absRate)/absRate + numpy.std(rates)
+        depthScore = abs(avgDepth - absDepth)/absDepth + numpy.std(depths)
+
 
     return rateScore, depthScore
 
 def getNewScore(filePath, absRate, absDepth, iteration, numpy):
-    if iteration < 5:
-        return
     currentScore = getExistingScore(filePath, absRate, absDepth, numpy)
 
     return currentScore
@@ -51,29 +50,26 @@ def writeToRecord(filePath, depth, rate):
     return
 
 def compareScore(currentScore, previousScore):
-    print(currentScore)
-    print(previousScore)
-
-    if previousScore[0] <= 1 and previousScore[1] <= 1:
-        if currentScore[0] > previousScores[0]:
-            print("Better Depth")
-        elif currentScore[0] < previousScores[0]:
-            print("Worse Depth")
-        else:
-            print("About the Same")
-
-        if currentSscore[1] > previousScore[1]:
-            print("Better Rate")
-        elif currentSscore[1] < previousScore[1]:
-            print("Worse Rate")
-        else:
-            print("About the Same")
+    msgDepth = ""
+    msgRate = ""
+    if currentScore[0] < previousScore[0]:
+        msgDepth = "Better Depth Than Your Previous Attempt"
+    elif currentScore[0] > previousScore[0]:
+        msgDepth = "Worse Depth Than Your Previous Attempt"
     else:
-         print("Your Previous Score is Incosistent, and cannot be compared properly")
-    return
+        msgDepth = "About the Same as Your Previous Attempt"
+
+    if currentScore[1] < previousScore[1]:
+        msgRate = "Better Rate Than Your Previous Attempt"
+    elif currentScore[1] > previousScore[1]:
+        msgRate = "Worse Rate Than Your Previous Attempt"
+    else:
+        msgRate = "About the Same Than Your Previous Attempt"
+
+    return msgDepth, msgRate
 
 #Returns depth feedback to user based on standards and compression quality
-def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateTol):
+def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateTol, msgDepth, msgRate):
     if type(sofT) == int:
         print("Did you stop doing compressions?")
         return
@@ -84,13 +80,13 @@ def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateT
 
     if  depth > maxDepth + depthTol:
         depthFeedback += "Too Deep"
-        print("Too Deep")
+        print("Too Deep" + "\t" + msgDepth)
     elif depth < minDepth - depthTol:
         depthFeedback += "Too Shallow"
-        print("Too Shallow")
+        print("Too Shallow" + "\t" + msgDepth)
     else:
         depthFeedback += "Good Depth"
-        print("Good Depth")
+        print("Good Depth" + "\t" + msgDepth)
 
     print("")
 
@@ -98,13 +94,13 @@ def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateT
     rateFeedback = "Rate: " + str(rate) + "\n"
     if  rate > maxRate + rateTol:
         rateFeedback += "Too Fast"
-        print("Too fast")
+        print("Too fast" + "\t" + msgRate)
     elif rate < minRate - rateTol:
         rateFeedback += "Too Slow"
-        print("Too Slow")
+        print("Too Slow" + "\t" + msgRate)
     else:
         rateFeedback += "Good Rate"
-        print("Good Rate")
+        print("Good Rate" + "\t" + msgRate)
         print("")
 
     return depth, rate
