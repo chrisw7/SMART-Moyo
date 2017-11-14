@@ -32,7 +32,6 @@ def findPorts():
             result.append(port)
         except (OSError, serial.SerialException):
             pass
-    print(result)
     for port in bluetooth:
         try:
             s = serial.Serial(port)

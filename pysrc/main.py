@@ -9,6 +9,7 @@ import sys
 import time
 import _thread as thread
 
+
 def close_program(L, sysVersion):
     inpt = ""
     if int(sysVersion) < 3:
@@ -17,32 +18,41 @@ def close_program(L, sysVersion):
         inpt = input()
     L.append(inpt)
 
-filePath = "records"
+repeatUser = False
+directory = "records"
 sysVersion = sys.version[0]
 
-L = []
-thread.start_new_thread(close_program, (L,sysVersion))
-
-fileName = "junaid" #feedback.getUser(sysVersion)
+fileName = "junaids" #feedback.getUser(sysVersion)
 #age = feedback.getAge(sysVersion)
-
-if not os.path.exists(filePath):
-    os.makedirs(filePath)
-
-#Official recommended ranges for CPR rate (cpm) and depth (cm)
-#Adjusts depending on age of person (adult, youth, child, infant)
-minDepth, maxDepth, depthTolerance = calibrate.age(sys.argv[0])
-minRate, maxRate, rateTolerance = 100, 120, 5
 
 GRAVITY = 9.80665
 
 compressionresetTime = 2
 txyz = 3 #Z index
 
-#Dynamically
-port = comPort.findPorts()
+filePath = directory + "/" + fileName + ".csv"
 
-#seconds = 2400 bps / 208 bits = 11.5 /second
+#Official recommended ranges for CPR rate (cpm) and depth (cm)
+#Adjusts depending on age of person (adult, youth, child, infant)
+minDepth, maxDepth, depthTolerance = calibrate.age(sys.argv[0])
+minRate, maxRate, rateTolerance = 100, 120, 5
+
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+if os.path.isfile(filePath):
+    repeatUser = True
+    previousScore = feedback.getExistingScore(filePath,
+                numpy.mean([minRate, maxRate]),
+                numpy.mean([minDepth, maxDepth]),
+                numpy)
+    print(previousScore)
+    os.remove(filePath)
+
+
+#Dynamically find ports on Linux or Windows
+#Sets seconds = 2400 bps / 208 bits = 11.5 /second
+port = comPort.findPorts()
 baud = 115200
 byte = 26  #208 bits
 print("Using " + str(port) + " as default, and baudrate of " + str(baud) )
@@ -77,7 +87,11 @@ if accel.all() == False:
 
 print("Calibrated. \nBegin Compressions")
 
+L = []
+thread.start_new_thread(close_program, (L,sysVersion))
+
 #Performs analysis on compressions every 2 seconds concurrent with compressions
+iteration = 0;
 while True:
     data, sTime, accel = [], [], []
 
@@ -112,8 +126,18 @@ while True:
 
     [depth, rate] = feedback.depth_rate(sofT, maxDepth, minDepth, depthTolerance, rate, maxRate, minRate, rateTolerance)
 
+    feedback.writeToRecord(filePath, depth, rate)
 
-    feedback.writeToFile(filePath, fileName, depth, rate)
+    if repeatUser:
+        iteration = iteration + 1
+        currentScore = feedback.getNewScore(filePath,
+        numpy.mean([maxRate, minRate]),
+        numpy.mean([maxDepth, minDepth]),
+        iteration,
+        numpy)
+        feedback.compareScore(currentScore, previousScore)
+
+
 
 
     print("----------------------------------------------------------------------------")
