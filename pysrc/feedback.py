@@ -78,7 +78,7 @@ def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateT
         return
 
     depth = max(sofT) - min(sofT)
-    print("Depth: ", str(depth))
+    print("Depth: " + str(depth))
     depthFeedback = "Depth: " + str(depth) + "\n"
 
     if  depth > maxDepth + depthTol:
@@ -93,7 +93,7 @@ def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateT
 
     print("")
 
-    print("Rate: ", str(rate))
+    print("Rate: " + str(rate))
     rateFeedback = "Rate: " + str(rate) + "\n"
     if  rate > maxRate + rateTol:
         rateFeedback += "Too Fast"
