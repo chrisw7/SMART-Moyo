@@ -1,7 +1,7 @@
 import glob
 import serial
 import sys
-
+import time
 
 """ Lists serial port names
 
@@ -17,8 +17,10 @@ def findPorts():
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
         # this excludes your current terminal "/dev/tty"
         ports = glob.glob('/dev/tty[A-Za-z]*')
+        bluetooth = glob.glob('/dev/rfcomm[A-Za-z0-9]*')
     elif sys.platform.startswith('darwin'):
         ports = glob.glob('/dev/tty.*')
+        bluetooth = glob.glob('/dev/rfcomm[A-Za-z0-9]*')
     else:
         raise EnvironmentError('Unsupported platform')
 
@@ -30,12 +32,21 @@ def findPorts():
             result.append(port)
         except (OSError, serial.SerialException):
             pass
+    for port in bluetooth:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            result.append(port)
+        except (OSError, serial.SerialException):
+            pass
+
+
 
     if result == []:
-        print("\n\nThe accelerometer is not on or not connected\n\n")
+        print("\n\nThe accelerometer is not on or not connected properly\n\n")
         print("If you have turned it on, give it a few moments and try again shortly\n\n")
+        time.sleep(2)
         exit()
-
     return result[0]
 
 
