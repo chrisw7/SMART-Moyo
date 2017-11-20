@@ -22,7 +22,7 @@ directory = "records"
 sysVersion = sys.version[0]
 
 fileName = feedback.getUser(sysVersion)
-#age = feedback.getAge(sysVersion)
+age = feedback.getAge(sysVersion)
 
 GRAVITY = 9.80665
 compressionresetTime = 2
@@ -32,8 +32,17 @@ filePath = directory + "/" + fileName + ".csv"
 
 #Official recommended ranges for CPR rate (cpm) and depth (cm)
 #Adjusts depending on age of person (adult, youth, child, infant)
-minDepth, maxDepth, depthTolerance = calibrate.age(sys.argv[0])
+minDepth, maxDepth, depthTolerance = calibrate.age(age)
 minRate, maxRate, rateTolerance = 100, 120, 5
+
+print("You have input: " + str(age) + "\n")
+print("Your constraints are: \n")
+
+print("Min Depth: " + str(minDepth) + "\n")
+print("Max Depth: " + str(maxDepth) + "\n")
+print("Depth Tolerance: " + str(depthTolerance) + "\n")
+
+time.sleep(0.4)
 
 if not os.path.exists(directory):
     os.makedirs(directory)
