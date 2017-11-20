@@ -28,7 +28,7 @@ GRAVITY = 9.80665
 compressionresetTime = 2
 txyz = 3 #Z index
 
-filePath = directory + "/" + fileName + "_" + age ".csv"
+filePath = directory + "/" + fileName + "_" + age + ".csv"
 
 #Official recommended ranges for CPR rate (cpm) and depth (cm)
 #Adjusts depending on age of person (adult, youth, child, infant)
