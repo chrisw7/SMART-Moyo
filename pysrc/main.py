@@ -59,7 +59,7 @@ if os.path.isfile(filePath):
 #Dynamically find ports on Linux or Windows
 #Sets seconds = 2400 bps / 208 bits = 11.5 /second
 port = comPort.findPorts()
-baud = 115200
+baud = 9600
 byte = 26  #208 bits
 
 #Opens the serial port
