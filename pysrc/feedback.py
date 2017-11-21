@@ -21,40 +21,59 @@ def getAge(sysVersion):
     return age.lower()
 
 #Some arbitrary algorithm
-def getExistingScore(filePath, absRate, absDepth, numpy):
+def getExistingScore(filePath, absRate, absDepth, numpy, sysVersion):
     rates = []
     depths = []
+    if int(sysVersion) < 3:
+        with open(filePath, 'rb') as csvfile:
+            return getScores(csvfile, rates, depths, absRate, absDepth, numpy)
 
-    with open(filePath, 'rb') as csvfile:
-        f = csv.reader(csvfile, quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for row in f:
+    else:
+        with open(filePath, 'r') as csvfile:
+            return getScores(csvfile, rates, depths, absRate, absDepth, numpy)
+
+
+def getScores(csvfile, rates, depths, absRate, absDepth, numpy):
+    f = csv.reader(csvfile, quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    for row in f:
+        if row:
             rates.append(int(row[0]))
             depths.append(float(row[1]))
 
-        #Include standard deviation in this?
-        avgRate = numpy.mean(rates)
-        avgDepth = numpy.mean(depths)
+            #Include standard deviation in this?
+    avgRate = numpy.mean(rates)
+    avgDepth = numpy.mean(depths)
 
-        rateScore = abs(avgRate - absRate)/absRate + numpy.std(rates)
-        depthScore = abs(avgDepth - absDepth)/absDepth + numpy.std(depths)
-
+    rateScore = abs(avgRate - absRate)/absRate + numpy.std(rates)
+    depthScore = abs(avgDepth - absDepth)/absDepth + numpy.std(depths)
 
     return rateScore, depthScore
 
-def getNewScore(filePath, absRate, absDepth, iteration, numpy):
-    currentScore = getExistingScore(filePath, absRate, absDepth, numpy)
+
+
+def getNewScore(filePath, absRate, absDepth, iteration, numpy, sysVersion):
+    currentScore = getExistingScore(filePath, absRate, absDepth, numpy, sysVersion)
 
     return currentScore
 
-def writeToRecord(filePath, depth, rate):
-    with open(filePath, 'a+b') as csvfile:
-        f = csv.writer(csvfile, quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        f.writerow([int(rate), depth])
+def writeToRecord(filePath, depth, rate, sysVersion):
+    if int(sysVersion) < 3:
+        with open(filePath, 'a+b') as csvfile:
+            f = csv.writer(csvfile, quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            f.writerow([int(rate), depth])
+    else:
+        with open(filePath, 'a+') as csvfile:
+            f = csv.writer(csvfile, quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            f.writerow([int(rate), depth])
+
     return
 
 def compareScore(currentScore, previousScore):
     msgDepth = ""
     msgRate = ""
+    if not currentScore or not previousScore:
+        return "", ""
+
     if currentScore[0] < previousScore[0]:
         msgDepth = "Better Depth Than Your Previous Attempt"
     elif currentScore[0] > previousScore[0]:
@@ -107,6 +126,3 @@ def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateT
         print("")
 
     return depth, rate
-
-
-    return
