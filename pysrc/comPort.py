@@ -11,7 +11,7 @@ import time
         A list of the serial ports available on the system
 """
 def findPorts():
-
+    bluetooth = False
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
@@ -32,13 +32,14 @@ def findPorts():
             result.append(port)
         except (OSError, serial.SerialException):
             pass
-    for port in bluetooth:
-        try:
-            s = serial.Serial(port)
-            s.close()
-            result.append(port)
-        except (OSError, serial.SerialException):
-            pass
+    if bluetooth:
+        for port in bluetooth:
+            try:
+                s = serial.Serial(port)
+                s.close()
+                result.append(port)
+            except (OSError, serial.SerialException):
+                pass
 
 
 
@@ -54,7 +55,7 @@ def findPorts():
 def idle(accel, err):
     tmp = max(accel) - min(accel)
     if abs(tmp) <= 0.09*err:
-        print("Accelerometer is idle")
+        print("Accelerometer is idle\n\n")
         return True
 
     return False
