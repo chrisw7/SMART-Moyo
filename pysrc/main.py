@@ -21,8 +21,8 @@ repeatUser = False
 directory = "records"
 sysVersion = sys.version[0]
 
-fileName = "junaid"#feedback.getUser(sysVersion)
-age = "adult"#feedback.getAge(sysVersion)
+fileName = feedback.getUser(sysVersion)
+age = feedback.getAge(sysVersion)
 
 GRAVITY = 9.80665
 compressionresetTime = 2
