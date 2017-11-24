@@ -73,12 +73,20 @@ def compareScore(currentScore, previousScore):
 
 #Returns depth feedback to user based on standards and compression quality
 def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateTol, msgDepth, msgRate):
+
     if type(sofT) == int:
         print("Did you stop doing compressions?")
         return
 
     depth = max(sofT) - min(sofT)
-    print("Depth: " + str(depth))
+    
+    if len(depth) >= 5:
+        tmp = ""
+        for i in range(4):
+            tmp += depth[i]
+        depth = tmp
+
+    print("Depth: " + str(depth) + " cm")
     depthFeedback = "Depth: " + str(depth) + "\n"
 
     if  depth > maxDepth + depthTol:
@@ -93,7 +101,7 @@ def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateT
 
     print("")
 
-    print("Rate: " + str(rate))
+    print("Rate: " + str(rate) + " cpm")
     rateFeedback = "Rate: " + str(rate) + "\n"
     if  rate > maxRate + rateTol:
         rateFeedback += "Too Fast"
