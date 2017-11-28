@@ -71,7 +71,10 @@ def calculations(time, accel, numpy):
         sofT = S_k*numpy.cos(2*pi*fcc*time + phi)
 
     depth = max(sofT) - min(sofT)
-    rate = fcc*60
+    try:
+        rate = fcc[0]*60
+    except:
+        rate = fcc*60
 
     #Writes to txt (debugging only)
 

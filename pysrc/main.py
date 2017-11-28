@@ -37,7 +37,6 @@ minRate, maxRate, rateTolerance = 100, 120, 5
 
 print("You have input: " + str(age) + "\n")
 print("Your constraints are: \n")
-
 print("Min Depth: " + str(minDepth) + "\n")
 print("Max Depth: " + str(maxDepth) + "\n")
 print("Depth Tolerance: " + str(depthTolerance) + "\n")
@@ -52,14 +51,15 @@ if os.path.isfile(filePath):
     previousScore = feedback.getExistingScore(filePath,
                 numpy.mean([minRate, maxRate]),
                 numpy.mean([minDepth, maxDepth]),
-                numpy)
+                numpy,
+                sysVersion)
     os.remove(filePath)
 
 
 #Dynamically find ports on Linux or Windows
 #Sets seconds = 2400 bps / 208 bits = 11.5 /second
 port = comPort.findPorts()
-baud = 115200
+baud = 9600
 byte = 26  #208 bits
 
 #Opens the serial port
@@ -137,7 +137,8 @@ while True:
             numpy.mean([maxRate, minRate]),
             numpy.mean([maxDepth, minDepth]),
             iteration,
-            numpy)
+            numpy,
+            sysVersion)
 
             msgDepth, msgRate = feedback.compareScore(currentScore, previousScore)
 
@@ -163,8 +164,7 @@ while True:
                         rateTolerance,
                         "", "")
 
-    feedback.writeToRecord(filePath, depth, rate)
+    feedback.writeToRecord(filePath, depth, rate, sysVersion)
 
-
-    print("\nUser ID:  " + fileName)
+    print("\nUser:  " + fileName)
     print("\n----------------------------------------------------------------------------\n\n\n\n\n\n")
