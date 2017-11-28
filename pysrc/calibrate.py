@@ -29,13 +29,13 @@ def scaleTime(time):
 
 #Returns mindepth, maxdepth and tolerance based
 def age(arg):
-    if arg == "infant".lower():
+    if arg.lower() == "infant":
         return 2, 3, 0.5
-    elif arg == "child".lower():
+    elif arg.lower() == "child":
         return 3, 4, 0.5
-    elif arg == "youth".lower():
+    elif arg.lower() == "youth":
         return 4, 5, 1
-    elif arg == "adult".lower():
+    elif arg.lower() == "adult":
         return 5, 6, 1
     else:
         return 5, 6, 1

@@ -6,11 +6,9 @@ def getUser(sysVersion):
         userName = raw_input(msg)
     else:
         userName = input(msg)
-    fileName = ""
-    for i in userName:
-        fileName += str(ord(i))
 
-    return fileName
+
+    return userName
 
 def getAge(sysVersion):
     msg = "Please Specify if adult/youth/child/infant: "
@@ -98,16 +96,15 @@ def depth_rate(sofT, maxDepth, minDepth, depthTol, rate, maxRate, minRate, rateT
         return
 
     depth = max(sofT) - min(sofT)
-    
-    if len(depth) >= 5:
+
+    if len(str(depth)) >= 5:
         tmp = ""
         for i in range(4):
-            tmp += depth[i]
-        depth = tmp
+            tmp += str(depth)[i]
+        depth = float(tmp)
 
     print("Depth: " + str(depth) + " cm")
     depthFeedback = "Depth: " + str(depth) + "\n"
-
     if  depth > maxDepth + depthTol:
         depthFeedback += "Too Deep"
         print("Too Deep" + "\t" + msgDepth)

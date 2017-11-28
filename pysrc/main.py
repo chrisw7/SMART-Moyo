@@ -88,7 +88,7 @@ accel = (accel[:] - offset)
 if accel.all() == False:
     print("You moved it. Restart the process")
     time.sleep(1)
-    exit()
+    #exit()
 
 print("Calibrated \n\nBegin Compressions")
 
