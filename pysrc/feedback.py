@@ -16,7 +16,11 @@ def getAge(sysVersion):
         age = raw_input(msg)
     else:
         age = input(msg)
-    return age.lower()
+
+    if age.lower() == "":
+        return "adult"
+    else:
+        return age.lower()
 
 #Some arbitrary algorithm
 def getExistingScore(filePath, absRate, absDepth, numpy, sysVersion):
