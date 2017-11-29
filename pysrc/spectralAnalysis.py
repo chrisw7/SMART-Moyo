@@ -6,7 +6,7 @@ import graph
 
 def calculations(time, accel, numpy):
     #Sampling Frequency
-    Fs = 1/(time[1]-time[0])
+    sF = 1/(time[1]-time[0])
 
     #Zero Padding
     N = len(time)
@@ -28,9 +28,10 @@ def calculations(time, accel, numpy):
     fftSmooth[1:end - 1] = 2*fftSmooth[1:end -1]
 
     #Scale Frequency Bins
-    freqBin = Fs*numpy.arange(int(N/2))/N
+    freqBin = sF*numpy.arange(int(N/2))/N
     ampl = []
-
+    Fs = 0;
+    
     #Find first 3 largest peaks
     indexes = peak.indexes(fftSmooth, min_dist= 2 )
     for i in range(len(indexes)):
