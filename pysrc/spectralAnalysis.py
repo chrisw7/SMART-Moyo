@@ -19,13 +19,13 @@ def calculations(time, accel, numpy):
 
     #Extract Windowed Double Sided FFT for phase and frequency analysis
     fftPolarDouble = numpy.fft.fft(hanningApplied, N)/N
-    fftPolarSingle = fftPolarDouble[1:int(N/2) + 1]
+    fftPolarSingle = fftPolarDouble[0:int(N/2)]
 
     fftSmooth = abs(fftPolarSingle)
     end = len(fftPolarSingle)
 
-    fftPolarSingle[2:end - 1] = 2*fftPolarSingle[2:end -1]
-    fftSmooth[2:end - 1] = 2*fftSmooth[2:end -1]
+    fftPolarSingle[1:end - 1] = 2*fftPolarSingle[1:end -1]
+    fftSmooth[1:end - 1] = 2*fftSmooth[1:end -1]
 
     #Scale Frequency Bins
     freqBin = Fs*numpy.arange(int(N/2))/N
@@ -79,9 +79,9 @@ def calculations(time, accel, numpy):
     #Writes to txt (debugging only)
 
     #Plots graph (development only)
-    #graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1, plt)
-    #graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 0, plt)
-    #graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0, plt)
+    graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1, plt)
+    graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 0, plt)
+    graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0, plt)
     plt.show(block=False)
 
     return sofT, rate
