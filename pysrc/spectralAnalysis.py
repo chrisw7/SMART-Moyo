@@ -80,9 +80,9 @@ def calculations(time, accel, numpy):
     #Writes to txt (debugging only)
 
     #Plots graph (development only)
-    graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1, plt)
-    graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 0, plt)
-    graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0, plt)
+    #graph.plot(freqBin, fftSmooth, "fbin (s)", "Amplitude", "Distance vs Time", 311, 1, plt)
+    #graph.plot(time, hanningApplied, "Time (s)", "Accel", "Hanning vs Time", 312, 0, plt)
+    #graph.plot(time, sofT, "Time (s)", "Displacement", "Distance vs Time", 313, 0, plt)
     plt.show(block=False)
 
     return sofT, rate
