@@ -10,3 +10,15 @@ python -m pip install numpy
 python -m pip install pyserial
 
 python -m pip install serial
+
+py -m pip install -U pip
+
+py -m pip install matplotlib
+
+py -m pip install peakutils
+
+py -m pip install numpy
+
+py -m pip install pyserial
+
+py -m pip install serial
