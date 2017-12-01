@@ -30,7 +30,7 @@ def findPorts():
             s = serial.Serial(port)
             s.close()
             result.append(port)
-        except (OSError, serial.SerialException):
+        except (OSError, IOError):
             pass
     if bluetooth:
         for port in bluetooth:
@@ -38,7 +38,7 @@ def findPorts():
                 s = serial.Serial(port)
                 s.close()
                 result.append(port)
-            except (OSError, serial.SerialException):
+            except (OSError, IOError):
                 pass
 
 
